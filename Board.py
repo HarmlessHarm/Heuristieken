@@ -12,4 +12,3 @@ class Board(object):
 
 	def setElementAt(self, x, y, z, object):
 		if getElementAt(x, y, z) == None:
-			

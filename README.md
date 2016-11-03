@@ -1,1 +1,33 @@
 # Heuristieken
+
+## About
+
+This python application works with in a virtual environment so all packages can be easily maintained and a certain python version can be set.
+
+## Installing pip and virtualenv
+
+### Linux
+`sudo apt-get install python-pip`   
+`sudo pip install virtualenv`   
+
+### macOS
+`sudo easy_install pip`   
+`sudo pip install virtualenv`
+
+### Windows
+Please no
+
+## Installation and set up
+*Clone git repository*   
+`git clone https://github.com/HarmlessHarm/Heuristieken.git`   
+`cd Heuristieken`   
+*Initialise and activate virtual environment*   
+`virtualenv env`   
+`source env/bin/activate`   
+*Install all python packages that are needed*   
+`pip install -r requirements.txt`
+
+
+## Way of work
+Make sure you activate your virtualenv before you start working on the project.   
+When you install a new package use the `pip freeze > requirements.txt` command to export the package requirements to git.
