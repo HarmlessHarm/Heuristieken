@@ -4,10 +4,7 @@ from mpl_toolkits.mplot3d import axes3d
 import numpy as np
 
 class Visualizer(object):
-	"""docstring for Visualizer"""
-	def __init__(self, board):
-		super(Visualizer, self).__init__()
-		self.board = board
+
 
 	def start(self):
 		fig = plt.figure()
@@ -36,3 +33,4 @@ class Visualizer(object):
 			else:
 				ax.scatter(xs[i],ys[i],zs[i], c='r', marker='o', label=str(elem))
 		
+
