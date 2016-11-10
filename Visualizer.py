@@ -5,6 +5,8 @@ import numpy as np
 
 class Visualizer(object):
 
+	def __init__(self, board):
+		self.board = board
 
 	def start(self):
 		fig = plt.figure()

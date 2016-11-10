@@ -25,6 +25,9 @@ class Board(object):
     def getLayer(self, layer):
         return self.board[:, :, layer]
 
+    def getDimensions(self):
+    	return (self.x_dim, self.y_dim, self.z_dim)
+    	
     def printBoard(self):
         for z in range(self.z_dim):
             print self.getLayer(z)
