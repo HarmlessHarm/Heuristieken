@@ -1,5 +1,4 @@
-from __future__ import print_function
-from Board import Board
+from Objects import Board, Gate, Net
 # from Visualizer import Visualizer
 import json
 
@@ -18,20 +17,26 @@ with open(netlist_file, 'r') as netlist_data:
     print(net_dict)
 
 
-file = 'prints.json'
+def createBoard():
 
-with open(file) as json_data:
+	file = 'prints.json'
 
-    d = json.load(json_data)
+	with open(file) as json_data:
 
-board = d['prints'][0]
-width = board['width']
-height = board['height']
-b = Board(width, height)
-for gate in board['gates']:
-    b.setElementAt(gate['x'], gate['y'], 0, gate['id'])
-    # print('x: '+ str(gate['x']) + ', y: ' + str(gate['y']) + ', id: ' + str(gate['id']))
-    #b.setElementAt(gate['x'], gate['y'], 0, gate['id'])
-# v = Visualizer(b)
-# v.start()
+	    d = json.load(json_data)
+	    board = d['prints'][2]
+	    width = board['width']
+	    height = board['height']
+	    b = Board(width, height)
+	    for gate in board['gates']:
+	    	g = Gate(gate['x'], gate['y'], gate['id'])
+	        b.setElementAt(g.gate_id, g.x, g.y)
 
+	    print b.getLayer(0)
+	    return b
+	    # v = Visualizer(b)
+	    # v.start()
+
+if __name__ == '__main__':
+	board = createBoard()
+	netList = [(1,3),(2,4)]
