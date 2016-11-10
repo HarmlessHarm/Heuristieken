@@ -18,3 +18,5 @@ with open(file) as json_data:
         # print('x: '+ str(gate['x']) + ', y: ' + str(gate['y']) + ', id: ' + str(gate['id']))
         #b.setElementAt(gate['x'], gate['y'], 0, gate['id'])
     print b.getLayer(0)
+    v = Visualizer(b)
+    v.start()
