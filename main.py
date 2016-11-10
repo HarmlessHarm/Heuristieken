@@ -17,11 +17,12 @@ def createBoard():
 	    for gate in board['gates']:
 	    	g = Gate(gate['x'], gate['y'], gate['id'])
 	        b.setElementAt(g.gate_id, g.x, g.y)
-	        # print('x: '+ str(gate['x']) + ', y: ' + str(gate['y']) + ', id: ' + str(gate['id']))
-	        #b.setElementAt(gate['x'], gate['y'], 0, gate['id'])
+
 	    print b.getLayer(0)
+	    return b
 	    # v = Visualizer(b)
 	    # v.start()
 
 if __name__ == '__main__':
-	createBoard()
+	board = createBoard()
+	netList = [(1,3),(2,4)]
