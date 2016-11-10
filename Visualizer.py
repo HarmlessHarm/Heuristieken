@@ -1,9 +1,9 @@
 
 class Visualizer(object):
 	"""docstring for Visualizer"""
-	def __init__(self, print):
+	def __init__(self, board):
 		super(Visualizer, self).__init__()
-		self.print = print
+		self.board = board
 
 	def start():
 
