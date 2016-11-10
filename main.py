@@ -3,20 +3,25 @@ from Objects import Board, Gate, Net
 import json
 
 
-file = 'prints.json'
+def createBoard():
 
-with open(file) as json_data:
+	file = 'prints.json'
 
-    d = json.load(json_data)
-    board = d['prints'][2]
-    width = board['width']
-    height = board['height']
-    b = Board(width, height)
-    for gate in board['gates']:
-    	g = Gate(gate['x'], gate['y'], gate['id'])
-        b.setElementAt(g.gate_id, g.x, g.y)
-        # print('x: '+ str(gate['x']) + ', y: ' + str(gate['y']) + ', id: ' + str(gate['id']))
-        #b.setElementAt(gate['x'], gate['y'], 0, gate['id'])
-    print b.getLayer(0)
-    v = Visualizer(b)
-    v.start()
+	with open(file) as json_data:
+
+	    d = json.load(json_data)
+	    board = d['prints'][2]
+	    width = board['width']
+	    height = board['height']
+	    b = Board(width, height)
+	    for gate in board['gates']:
+	    	g = Gate(gate['x'], gate['y'], gate['id'])
+	        b.setElementAt(g.gate_id, g.x, g.y)
+	        # print('x: '+ str(gate['x']) + ', y: ' + str(gate['y']) + ', id: ' + str(gate['id']))
+	        #b.setElementAt(gate['x'], gate['y'], 0, gate['id'])
+	    print b.getLayer(0)
+	    # v = Visualizer(b)
+	    # v.start()
+
+if __name__ == '__main__':
+	createBoard()
