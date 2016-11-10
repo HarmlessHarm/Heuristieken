@@ -1,4 +1,5 @@
-import Board
+from Board import Board
+from Visualizer import Visualizer
 import json
 
 
@@ -9,8 +10,8 @@ with open(file) as json_data:
 	board = d['prints'][0]
 	width = board['width']
 	height = board['height']
-	b = Board.Board(width, height)
+	b = Board(width, height)
 	for gate in board['gates']:
-		print('x: '+ str(gate['x']) + ', y: ' + str(gate['y']) + ', id: ' + str(gate['id']))
-		#b.setElementAt(gate['x'], gate['y'], 0, gate['id'])
-	b.prettyPrintLayer(0)
+		b.setElementAt(gate['x'], gate['y'], 0, gate['id'])
+	v = Visualizer(b)
+	v.start()
