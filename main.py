@@ -38,36 +38,46 @@ def getPath(start_gate, end_gate, board):
 
 
 
-	# while curPos != end:
-	#	dX = end[0] - curPos[0]
-	#	dY = end[1] - curPos[1]
-#
-#		nextPos = getNextPos(curPos, end, dX, dY, board)
-#		net.addPos(nextPos)
-#		curPos = nextPos
+	for i in range(12):
+		dX = end[0] - curPos[0]
+		dY = end[1] - curPos[1]
 
-#	return net
+		nextPos = getNextPos(curPos, end, dX, dY, board)
+		if nextPos == True:
+			return net
+		if board.setElementAt(-1, nextPos[0],nextPos[1],nextPos[2]):
+			net.addPos(nextPos)
+			curPos = nextPos
+
+	return net
 
 def getNextPos(curPos, end, dX, dY, board):
 	# Check if voxel below is empty
 	if curPos[2] != 0:
-		print curPos
 		downPos = curPos[0], curPos[1], curPos[2] - 1
 		if board.isEmpty(downPos):
 			return (downPos)
+		elif downPos == (end[0], end[1], 0):
+			return True
 
 	if dX != 0:
 		nextPos = (curPos[0] + np.sign(dX),curPos[1], curPos[2])
 		if board.isEmpty(nextPos):
 			return nextPos
 		else:
-			return (curPos[0], curPos[1], curPos[2] + 1)
+			above = (curPos[0], curPos[1], curPos[2] + 1)
+			if above[2] >= board.board.shape[2]:
+				board.addLayer()
+			return above
 	elif dY != 0:
 		nextPos = (curPos[0],curPos[1] + np.sign(dY), curPos[2])
 		if board.isEmpty(nextPos):
 			return nextPos
 		else:
-			return (curPos[0], curPos[1], curPos[2] + 1)
+			above = (curPos[0], curPos[1], curPos[2] + 1)
+			if above[2] >= board.board.shape[2]:
+				board.addLayer()
+			return above
 
 	else:
 		print 'huh?'
@@ -82,3 +92,4 @@ if __name__ == '__main__':
 	for (start,end) in netList:
 		net = getPath(start, end, board)
 		print net.path
+		board.printBoard()

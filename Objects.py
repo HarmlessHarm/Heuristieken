@@ -18,11 +18,14 @@ class Board(object):
 		self.nets = []
 
 	def getElementAt(self, x, y, z):
+		# print x,y,z, ': ', self.board[x,y,z]
 		return self.board[x, y, z]
 
 	def isEmpty(self, xyz):
 		x, y, z = xyz
+		# print 'is empty? ',
 		if self.getElementAt(x, y, z) == 0:
+			# print 'True'
 			return True
 		else:
 			return False
@@ -30,6 +33,7 @@ class Board(object):
 	def setElementAt(self, obj,  x, y, z=0):
 		if self.getElementAt(x, y, z) == 0:
 			self.board[x][y][z] = obj
+			return True
 		else:
 			return False
 
@@ -84,4 +88,4 @@ if __name__ == '__main__':
 	print "add"
 	b.addLayer()
 	print 'added'
-	b.printBoard()
+	print b.board.shape[2]
