@@ -12,26 +12,25 @@ class Board(object):
 		self.y_dim = y_dim
 		self.z_dim = z_dim
 
-		self.board = np.zeros((x_dim, y_dim, z_dim))
+		self.board = np.zeros((x_dim, y_dim, z_dim), dtype=object)
 
 		self.gates = {}
-		self.nets = []
+		self.nets = {}
 
 	def getElementAt(self, x, y, z):
-		# print x,y,z, ': ', self.board[x,y,z]
+		if  x > self.x_dim - 1 or y > self.y_dim - 1 or z > self.z_dim - 1:
+			return True
 		return self.board[x, y, z]
 
 	def isEmpty(self, xyz):
 		x, y, z = xyz
-		# print 'is empty? ',
 		if self.getElementAt(x, y, z) == 0:
-			# print 'True'
 			return True
 		else:
 			return False
 
 	def setElementAt(self, obj,  x, y, z=0):
-		if self.getElementAt(x, y, z) == 0:
+		if self.isEmpty((x,y,z)):
 			self.board[x][y][z] = obj
 			return True
 		else:
@@ -51,6 +50,7 @@ class Board(object):
 		
 	def printBoard(self):
 		for z in range(self.z_dim):
+			print 'layer',z
 			print self.getLayer(z)
 			print "\n"
 
@@ -59,23 +59,24 @@ class Gate(object):
 
 	""" Docstring for Gate """
 
-	def __init__(self, x, y, gate_id):
+	def __init__(self, gate_id, x, y, z=0):
+		self.gate_id = gate_id
 		self.x = x
 		self.y = y
-		self.gate_id = gate_id
+		self.z = z
 
 	def getCoordinates(self, coordinates):
-		return (x, y)
+		return (x, y, z)
 
 
 class Net:
 
 #   """ Docstring for Net """
 
-	def __init__(self, start, end):
-		# self.identifier = identifier
-		self.start = start
-		self.end = end
+	def __init__(self, start_gate, end_gate, net_id):
+		self.net_id = net_id
+		self.start_gate = start_gate
+		self.end_gate = end_gate
 		self.path = []
 
 	def addPos(self,xyz):
