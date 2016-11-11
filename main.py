@@ -4,19 +4,21 @@ from Algorithms import EasyPath
 import numpy as np
 import json
 
-netlist_file = 'netlist.txt'
+def readNetlists():
 
-with open(netlist_file, 'r') as netlist_data:
-    nd = netlist_data.readlines()
-    net_dict = {}
-    for line in nd:
-        if line[0] == 'n':
-            line = line.split(' = ')
-            # print(line, end='')
-            net_dict[line[0]] = line[1]
-        else:
-            continue
-    print(net_dict)
+	netlist_file = 'netlist.txt'
+
+	with open(netlist_file, 'r') as netlist_data:
+	    nd = netlist_data.readlines()
+	    net_dict = {}
+	    for line in nd:
+	        if line[0] == 'n':
+	            line = line.split(' = ')
+	            # print(line, end='')
+	            net_dict[line[0]] = line[1]
+	        else:
+	            continue
+	    print(net_dict)
 
 
 def createBoard():
@@ -36,6 +38,7 @@ def createBoard():
 	        b.setElementAt(g.gate_id, g.x, g.y)
 
 	    print b.getLayer(0)
+	    
 	    return b
 	    # v = Visualizer(b)
 	    # v.start()
