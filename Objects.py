@@ -48,6 +48,17 @@ class Board(object):
 	def getDimensions(self):
 		return (self.x_dim, self.y_dim, self.z_dim)
 
+	def getNeighbourCoordinates(self, x, y, z):
+		neighbours = []
+		xyz = (x,y,z)
+		for i in range(-1, 2, 1):
+			for j in range(-1, 2 , 1):
+				for k in range(-1, 2, 1):
+					(nx, ny, nz) = tuple([sum(x) for x in zip(xyz, (i,j,k))])
+					if 0 <= nx < self.x_dim and 0 <= ny < self.y_dim and 0 <= nz < self.z_dim and xyz != (nx,ny,nz):
+						neighbours.append((nx,ny,nz))
+		return neighbours
+
 	def getScore(self):
 		score = 0
 		pathCount = 0
@@ -63,6 +74,7 @@ class Board(object):
 			print 'layer',z
 			print self.getLayer(z)
 			print "\n"
+
 
 
 class Gate(object):
