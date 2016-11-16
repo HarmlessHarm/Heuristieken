@@ -47,8 +47,13 @@ if __name__ == '__main__':
 	count = 0
 	for i, (start,end) in enumerate(netList1):
 		net = Net(start, end, i)
+
 		easyPath = EasyPath(board)
 		net = easyPath.createPath(net)
+
+		dijkstra = Dijkstra()
+		net = dijkstra.createPath(net)
+
 		board.nets[i] = net
 		print  i,'(',net.start_gate + 1,'->' ,net.end_gate + 1,') => ', net.path, '\n'
 		if net.path == False:
