@@ -18,23 +18,26 @@ class Board(object):
 		self.nets = {}
 
 	def getElementAt(self, x, y, z):
-		if  x > self.x_dim - 1 or y > self.y_dim - 1 or z > self.z_dim - 1:
-			return True
-		return self.board[x, y, z]
+		if  0 <= x < self.x_dim and 0 <= y < self.y_dim and 0 <= z < self.z_dim:
+			return self.board[x, y, z]
+		return False
 
 	def isEmpty(self, xyz):
 		x, y, z = xyz
-		if self.getElementAt(x, y, z) == 0:
+		if self.getElementAt(x, y, z) is 0:
 			return True
 		else:
 			return False
 
 	def setElementAt(self, obj,  x, y, z=0):
 		if self.isEmpty((x,y,z)):
-			self.board[x][y][z] = obj
+			self.board[x, y, z] = obj
 			return True
 		else:
 			return False
+
+	def removeElementAt(self, xyz):
+		self.board[xyz] = 0
 
 	def addLayer(self):
 		x, y = (self.x_dim, self.y_dim)
