@@ -50,9 +50,13 @@ class Board(object):
 
 	def getScore(self):
 		score = 0
-		for net in self.nets:
-			score += len(self.nets[net].path)
-		return score
+		pathCount = 0
+		for i in self.nets:
+			path = self.nets[i].path
+			if type(path) is list:
+				pathCount += 1
+				score += len(path)
+		return pathCount, score
 		
 	def printBoard(self):
 		for z in range(self.z_dim):

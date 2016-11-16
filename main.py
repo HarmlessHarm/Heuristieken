@@ -57,6 +57,9 @@ if __name__ == '__main__':
 		print net.start_gate + 1,'->' ,net.end_gate + 1, i, " => ", net.path
 		if net.path == False:
 			count += 1
+
 	print "Invalid paths:",count
+	print "Score for this board (number of paths, total length): ", board.getScore()
+
 
 
