@@ -70,20 +70,21 @@ class EasyPath(object):
 					PHASE = 'DOWN'
 			# DOWN PHASE
 			if PHASE == 'DOWN':
-				# if dX != 0:
-				# 	nextPos = goX(curPos, dX, board)
-				# elif dY != 0:
-				# 	nextPos = goY(curPos, dY, board)
-				# if not nextPos:	
-				nextPos = self.goDown(curPos, board)
-				if not nextPos:
+				nextPos = False
+				if dX != 0:
 					nextPos = self.goX(curPos, dX, board)
+				elif dY != 0:
+					nextPos = self.goY(curPos, dY, board)
+				if not nextPos:	
+					nextPos = self.goDown(curPos, board)
 					if not nextPos:
-						nextPos = self.goY(curPos, dY, board)
+						nextPos = self.goX(curPos, dX, board)
 						if not nextPos:
-							nextPos = self.goNotX(curPos, dX, board)
+							nextPos = self.goY(curPos, dY, board)
 							if not nextPos:
-								nextPos = self.goNotY(curPos, dY, board)
+								nextPos = self.goNotX(curPos, dX, board)
+								if not nextPos:
+									nextPos = self.goNotY(curPos, dY, board)
 				if nextPos == False:
 					net.path = False
 					return net
@@ -163,6 +164,20 @@ class EasyPath(object):
 			return newPos
 		else:
 			return False	
+	
+	def goBack(self, curPos, board, net):
+	# Doesn't work as expected
+		if len(net.path) > 1:
+			print '\ngoBack'
+			print net.path[-1], len(net.path)
+			net.path.remove(net.path[-1])
+			print net.path[-1], len(net.path)
+			board.removeElementAt(curPos)
+			board.setElementAt(-1, curPos[0],curPos[1],curPos[2])
+			prevPos = net.path[-1]
+			print prevPos
+			return prevPos
+		return False
 
 class AStar(object):
 	"""docstring for AStar"""
@@ -245,3 +260,4 @@ if __name__ == '__main__':
 	path = alg.aStar(net.start_gate, net.end_gate)
 	print "Planning path from gate ", board.gates[1], " to gate ", board.gates[5]
 	print path
+
