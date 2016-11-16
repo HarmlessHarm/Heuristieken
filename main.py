@@ -1,5 +1,5 @@
 from Objects import Board, Gate, Net
-from Algorithms import EasyPath
+from Algorithms import *
 # from Visualizer import Visualizer
 import numpy as np
 import json
@@ -42,164 +42,6 @@ def createBoard(layers):
 	    # v = Visualizer(b)
 	    # v.start()
 
-def getPath(net, board):
-
-	start = board.gates[net.start_gate]
-	end = board.gates[net.end_gate]
-
-	curPos = start
-	net.addPos(start)
-	
-	if curPos[2] < net.net_id:
-		PHASE = 'UP'
-	else: 
-		PHASE = 'LAT'
-	
-	while not checkAdjacent(curPos, end):
-		# if checkAdjacent(curPos, end):
-		# 	return net
-
-		dX = end[0] - curPos[0]
-		dY = end[1] - curPos[1]
-
-		# print dX, dY
-
-
-		# print curPos[2], PHASE, net.net_id
-		# UP PHASE
-		if PHASE == 'UP':
-			nextPos = goUp(curPos, board)
-			if not nextPos:
-				nextPos = goX(curPos, dX, board)
-				if not nextPos:
-					nextPos = goY(curPos, dY, board)
-					if not nextPos:
-						nextPos = goNotX(curPos, dX, board)
-						if not nextPos:
-							nextPos = goNotY(curPos, dY, board)
-			if nextPos == False:
-				net.path = False
-				return net
-			net.addPos(nextPos)
-			board.setElementAt(net, nextPos[0], nextPos[1], nextPos[2])
-			curPos = nextPos
-			if curPos[2] == net.net_id:
-				PHASE = 'LAT'
-		# LATERAL PHASE
-		if PHASE == 'LAT':
-			nextPos = goX(curPos, dX, board)
-			if not nextPos:
-				nextPos = goY(curPos, dY, board)
-				if not nextPos:
-					nextPos = goNotX(curPos, dX, board)
-					if not nextPos:
-						nextPos = goNotY(curPos, dY, board)
-
-			if nextPos == False:
-				net.path = False
-				return net
-			net.addPos(nextPos)
-			board.setElementAt(net, nextPos[0], nextPos[1], nextPos[2])
-			curPos = nextPos
-			if dX == 0 and dY == 0:
-				PHASE = 'DOWN'
-		# DOWN PHASE
-		if PHASE == 'DOWN':
-			# if dX != 0:
-			# 	nextPos = goX(curPos, dX, board)
-			# elif dY != 0:
-			# 	nextPos = goY(curPos, dY, board)
-			# if not nextPos:	
-			nextPos = goDown(curPos, board)
-			if not nextPos:
-				nextPos = goX(curPos, dX, board)
-				if not nextPos:
-					nextPos = goY(curPos, dY, board)
-					if not nextPos:
-						nextPos = goNotX(curPos, dX, board)
-						if not nextPos:
-							nextPos = goNotY(curPos, dY, board)
-			if nextPos == False:
-				net.path = False
-				return net
-			net.addPos(nextPos)
-			board.setElementAt(net, nextPos[0], nextPos[1], nextPos[2])
-			curPos = nextPos
-			if curPos[2] == 0:
-				PHASE = 'LAT'
-	net.addPos(end)
-	return net
-
-def checkAdjacent(curPos, end):
-	# Same plane
-
-	if curPos[2] == end[2]:
-
-		if curPos[1] == end[1]:
-			if abs(end[0] - curPos[0]) == 1:
-				return True
-		elif curPos[0] == end[0]:
-			if abs(end[1] - curPos[1]) == 1:
-				return True
-	elif curPos[0] == end[0] and curPos[1] == end[1] and abs(end[2] - curPos[2]) == 1:
-		return True
-	else: return False
-
-
-def goUp(curPos, board):
-	newPos = curPos[0], curPos[1], curPos[2] + 1
-	if board.isEmpty(newPos):
-		return newPos
-	else:
-		return False
-
-def goDown(curPos, board):
-	newPos = curPos[0], curPos[1], curPos[2] - 1
-	if board.isEmpty(newPos):
-		return newPos
-	else:
-		return False
-
-def goX(curPos, dX, board):
-	if dX != 0:
-		newPos = curPos[0] + np.sign(dX), curPos[1], curPos[2]
-	else:
-		newPos = curPos[0] + 1, curPos[1], curPos[2]
-	if board.isEmpty(newPos):
-		return newPos
-	else:
-		return False
-
-def goY(curPos, dY, board):
-	if dY != 0:
-		newPos = curPos[0], curPos[1] + np.sign(dY), curPos[2]
-	else:
-		newPos = curPos[0], curPos[1] + 1, curPos[2]
-	if board.isEmpty(newPos):
-		return newPos
-	else:
-		return False
-
-def goNotX(curPos, dX, board):
-	if dX != 0:
-		newPos = curPos[0] - np.sign(dX), curPos[1], curPos[2]
-	else:
-		newPos = curPos[0] - 1, curPos[1], curPos[2]
-	if board.isEmpty(newPos):
-		return newPos
-	else:
-		return False
-
-def goNotY(curPos, dY, board):
-	if dY != 0:
-		newPos = curPos[0], curPos[1] - np.sign(dY), curPos[2]
-	else:
-		newPos = curPos[0], curPos[1] - 1, curPos[2]
-	if board.isEmpty(newPos):
-		return newPos
-	else:
-		return False	
-
 
 if __name__ == '__main__':
 	netList1 = [(23, 4), (5, 7), (1, 0), (15, 21), (3, 5), (7, 13), (3, 23), (23, 8), (22, 13), (15, 17), (20, 10), (15, 8), (13, 18), (19, 2), (22, 11), (10, 4), (11, 24), (3, 15), (2, 20), (3, 4), (20, 19), (16, 9), (19, 5), (3, 0), (15, 5), (6, 14), (7, 9), (9, 13), (22, 16), (10, 7)]
@@ -209,7 +51,8 @@ if __name__ == '__main__':
 	count = 0
 	for i, (start,end) in enumerate(netList1):
 		net = Net(start, end, i)
-		net = getPath(net, board)
+		easyPath = EasyPath(board)
+		net = easyPath.createPath(net)
 		board.nets[i] = net
 		print net.start_gate + 1,'->' ,net.end_gate + 1, i, " => ", net.path
 		if net.path == False:

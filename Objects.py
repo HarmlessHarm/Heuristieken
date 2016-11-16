@@ -47,6 +47,12 @@ class Board(object):
 
 	def getDimensions(self):
 		return (self.x_dim, self.y_dim, self.z_dim)
+
+	def getScore(self):
+		score = 0
+		for net in self.nets:
+			score += len(self.nets[net].path)
+		return score
 		
 	def printBoard(self):
 		for z in range(self.z_dim):
