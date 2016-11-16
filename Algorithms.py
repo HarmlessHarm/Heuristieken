@@ -1,5 +1,5 @@
 import numpy as np
-
+from main import *
 
 class EasyPath(object):
 	"""docstring for EasyPath"""
@@ -164,7 +164,7 @@ class EasyPath(object):
 			return newPos
 		else:
 			return False	
-
+	
 	def goBack(self, curPos, board, net):
 	# Doesn't work as expected
 		if len(net.path) > 1:
@@ -178,3 +178,86 @@ class EasyPath(object):
 			print prevPos
 			return prevPos
 		return False
+
+class AStar(object):
+	"""docstring for AStar"""
+	def __init__(self, board):
+		super(AStar, self).__init__()
+		self.board = board	
+	
+	def aStar(self, start, goal):
+		(x,y,z) = self.board.getDimensions()
+		(x_start, y_start, z_start) = start
+		#For each node, whether it has been evaluated
+		closedSet = np.zeros((x,y,z), dtype=bool)
+
+		#Set of discovered nodes that still need evaluation, where a node is a tuple (x,y,z)
+		openSet = [start]
+
+		#Dictionary that for each node (a tuple x,y,z) archives which node it can most easily be reached from
+		cameFrom = {}
+
+		#Array that contains g_scores for all nodes, the cost of getting from start to that node
+		#default is -1, as placeholder for proper default infinity
+		gScore = np.full((x,y,z), -1, dtype='int64')
+		gScore[x_start][y_start][z_start] = 0 #Cost of going from start to start is 0
+
+		#array that contains f_scores for all nodes, the distance for getting to the goal node from start via that node
+		#Default is -1, as placeholder for infinity
+		fScore = np.full((x,y,z), -1)
+		fScore[x_start][y_start][z_start] = self.costEstimate(start, goal)
+
+		while openSet != []:
+			#Set currentNode to be the node in openset with the lowest fscore (above -1)
+			(cx,cy,cz) = openSet[0]
+			for (x,y,z) in openSet:
+				if  0 <= fScore[x][y][z] < fScore[cx][cy][cz]:
+					(cx,cy,cz) = (x,y,z)
+
+			#if currentNode is adjacent to goal node, return the path
+			if goal in self.board.getAllNeighbours(cx,cy,cz):
+				cameFrom[goal] = (cx,cy,cz)
+				return self.reconstructPath(cameFrom, (cx,cy,cz))
+
+			openSet.remove((cx, cy, cz))
+			closedSet[cx][cy][cz] = 1
+			print (cx,cy,cz)
+			for (nx,ny,nz) in self.board.getOpenNeighbours(cx,cy,cz):
+				if closedSet[nx][ny][nz]:
+					continue #neighbour is already evaluated
+
+				tentative_gscore = gScore[cx][cy][cz] + 1
+				if not (nx,ny,nz) in openSet:
+					openSet.append((nx,ny,nz))
+				elif tentative_gscore >= gScore[nx][ny][nz] >= 0:
+					continue
+
+				cameFrom[(nx,ny,nz)] = (cx,cy,cz)
+				gScore[nx][ny][nz] = tentative_gscore
+				fScore[nx][ny][nz] = gScore[nx][ny][nz] + self.costEstimate((nx,ny,nz),goal)
+
+		return False
+
+
+	#Very optimistic heuristic, it returns the manhattan distance between the 2 nodes
+	def costEstimate(self, node1, node2):
+		(x,y,z) = node1
+		(x2,y2,z2) = node2
+		return abs(x2-x)+abs(y2-y)+abs(z2-z)
+
+	def reconstructPath(self, cameFrom, currentNode):
+		path = [currentNode]
+		while currentNode in cameFrom.keys():
+			currentNode = cameFrom[currentNode]
+			path.append(currentNode)
+		return path
+
+if __name__ == '__main__':
+	board = createBoard(1)
+	print board.gates[1], board.gates[5]
+	net = Net(board.gates[1], board.gates[5], 1)
+	alg = AStar(board)
+	path = alg.aStar(net.start_gate, net.end_gate)
+	print "Planning path from gate ", board.gates[1], " to gate ", board.gates[5]
+	print path
+
