@@ -4,21 +4,22 @@ from Dijkstra import *
 # from Visualizer import Visualizer
 import numpy as np
 import json
+import ast
 
-def readNetlists(i):
+def readNetlists():
 
 	netlist_file = 'netlist.txt'
-
+	net_lists = []
 	with open(netlist_file, 'r') as netlist_data:
 	    nd = netlist_data.readlines()
-	    net_dict = {}
 	    for line in nd:
 	        if line[0] == 'n':
 	            line = line.split(' = ')
-	            net_dict[line[0]] = line[1]
+	            net_lists.append(ast.literal_eval(line[1]))
 	        else:
 	            continue
-	    print(net_dict)
+
+	return net_lists
 		
 def createBoard(layers):
 

@@ -1,5 +1,6 @@
 import numpy as np
 from main import *
+from random import shuffle
 
 class EasyPath(object):
 	"""docstring for EasyPath"""
@@ -204,7 +205,7 @@ class AStar(object):
 
 		#array that contains f_scores for all nodes, the distance for getting to the goal node from start via that node
 		#Default is -1, as placeholder for infinity
-		fScore = np.full((x,y,z), -1)
+		fScore = np.full((x,y,z), -1, dtype='int64')
 		fScore[x_start][y_start][z_start] = self.costEstimate(start, goal)
 
 		while openSet != []:
@@ -214,14 +215,14 @@ class AStar(object):
 				if  0 <= fScore[x][y][z] < fScore[cx][cy][cz]:
 					(cx,cy,cz) = (x,y,z)
 
-			#if currentNode is adjacent to goal node, return the path
+			#if currentNode is adjacent to goal node, return the path to currentNode
 			if goal in self.board.getAllNeighbours(cx,cy,cz):
 				cameFrom[goal] = (cx,cy,cz)
-				return self.reconstructPath(cameFrom, (cx,cy,cz))
+				return self.reconstructPath(cameFrom, goal)
 
 			openSet.remove((cx, cy, cz))
 			closedSet[cx][cy][cz] = 1
-			print (cx,cy,cz)
+			
 			for (nx,ny,nz) in self.board.getOpenNeighbours(cx,cy,cz):
 				if closedSet[nx][ny][nz]:
 					continue #neighbour is already evaluated
@@ -250,14 +251,30 @@ class AStar(object):
 		while currentNode in cameFrom.keys():
 			currentNode = cameFrom[currentNode]
 			path.append(currentNode)
-		return path
+		return list(reversed(path))
 
 if __name__ == '__main__':
-	board = createBoard(1)
-	print board.gates[1], board.gates[5]
-	net = Net(board.gates[1], board.gates[5], 1)
-	alg = AStar(board)
-	path = alg.aStar(net.start_gate, net.end_gate)
-	print "Planning path from gate ", board.gates[1], " to gate ", board.gates[5]
-	print path
+	
+	netlists = readNetlists()
+	board = createBoard(30)
+	failedCount = 0
+	netlist = netlists[0]
+	shuffle(netlist)
+	for i, (start, end) in enumerate(netlist):
+		net = Net(board.gates[start], board.gates[end], 1)
+		print "Planning the path", i, "from gate ", start, board.gates[start], " to gate ", end, board.gates[end]
+		alg = AStar(board)
+		plannedPath = alg.aStar(net.start_gate, net.end_gate)
+		if not plannedPath:
+			print 'Failed planning a path for net', i, '!'
+			failedCount += 1
+			continue
+
+		#print 'about to set this planned path: ', plannedPath
+		net.path = plannedPath
+		if not board.setNetPath(net):
+			print 'Path is planned over an occupied position!'
+			break
+	print 'Failed planning paths for: ', failedCount, 'nets'	
+	
 

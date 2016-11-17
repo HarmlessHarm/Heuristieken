@@ -87,6 +87,12 @@ class Board(object):
             print self.getLayer(z)
             print "\n"
 
+    def setNetPath(self, net):
+        for (x,y,z) in net.path[1:-1]:
+            if not self.setElementAt(net, x,y,z):
+                return False
+        return True
+
 class Gate(object):
 
     """ Docstring for Gate """
@@ -114,6 +120,7 @@ class Net:
     def addPos(self,xyz):
         x, y ,z = xyz
         self.path.append((x,y,z))
+
 
 if __name__ == '__main__':
     b = Board(3, 3)
