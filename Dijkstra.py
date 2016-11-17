@@ -21,12 +21,16 @@ class Dijkstra(object):
 			for coord, val in self.remaining.iteritems():
 				if end in self.board.getAllNeighbours(coord[0],coord[1],coord[2]):
 					ended = True
-				newRemaining.update(self.explore(coord, val))
+				rem = self.explore(coord, val)
+				if rem == False:
+					self.net.path = False
+					return self.net
+				newRemaining.update(rem)
 				self.explored[coord] = val
-
-			self.remaining = {}
+			if newRemaining == {}:
+				self.net.path = False
+				return self.net
 			self.remaining = newRemaining.copy()
-
 
 		coord = end
 		self.net.addPos(end)
@@ -35,10 +39,16 @@ class Dijkstra(object):
 		while not found:
 			if start in self.board.getAllNeighbours(coord[0],coord[1],coord[2]):
 				found = True
+				nextCoord = start
 			else:
 				nextCoord = self.getLowestValue(coord)
-				self.net.addPos(nextCoord)
-				coord = nextCoord
+				if not nextCoord:
+					self.net.path = False
+					return self.net
+
+			self.net.addPos(nextCoord)	
+			self.board.setElementAt(self.net, coord[0], coord[1], coord[2])
+			coord = nextCoord
 
 		return self.net
 
@@ -48,6 +58,8 @@ class Dijkstra(object):
 		newRemaining = {}
 
 		neighbours = self.board.getOpenNeighbours(coord[0], coord[1], coord[2])
+		if len(neighbours) == 0:
+			return False
 
 		for neighbour in neighbours:
 			if neighbour not in self.explored:
@@ -59,6 +71,8 @@ class Dijkstra(object):
 	def getLowestValue(self, coord):
 
 		neighbours = self.board.getOpenNeighbours(coord[0], coord[1], coord[2])
+		if len(neighbours) == 0:
+			return False
 		lowestValue = sys.maxint
 		for neighbour in neighbours:
 			if neighbour in self.explored:
