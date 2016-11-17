@@ -1,3 +1,5 @@
+import sys
+
 class Dijkstra(object):
 	"""docstring for Dijkstra"""
 	def __init__(self, board, net):
@@ -13,22 +15,27 @@ class Dijkstra(object):
 		end = self.board.gates[self.net.end_gate]
 
 		self.remaining[start] = 0
-
-		while not self.board.gates[self.net.end_gate] in self.explored.keys():
-			
+		ended = False
+		while not ended:
 			newRemaining = {}
-			for coord, val in self.remaining:
+			for coord, val in self.remaining.iteritems():
+				if end in self.board.getAllNeighbours(coord[0],coord[1],coord[2]):
+					ended = True
 				newRemaining.update(self.explore(coord, val))
 				self.explored[coord] = val
 
 			self.remaining = {}
 			self.remaining = newRemaining.copy()
 
+
 		coord = end
+		self.net.addPos(end)
+		self.explored[end] = val + 1
 		while coord != start:
 
 			nextCoord = self.getLowestValue(coord)
 			self.net.addPos(nextCoord)
+			print self.net.path
 			coord = nextCoord
 
 		return self.net
@@ -41,7 +48,8 @@ class Dijkstra(object):
 		neighbours = self.board.getOpenNeighbours(coord[0], coord[1], coord[2])
 
 		for neighbour in neighbours:
-			newRemaining[neighbour] = val + 1
+			if neighbour not in self.explored:
+				newRemaining[neighbour] = val + 1
 
 		return newRemaining
 
@@ -49,13 +57,13 @@ class Dijkstra(object):
 	def getLowestValue(self, coord):
 
 		neighbours = self.board.getOpenNeighbours(coord[0], coord[1], coord[2])
-
+		print neighbours
 		lowestValue = sys.maxint
 		for neighbour in neighbours:
-
-			value = self.explored[neighbour]
-			if value < lowestValue:
-				lowestValue = value
-				bestCoord = neighbour
+			if neighbour in self.explored:
+				value = self.explored[neighbour]
+				if value < lowestValue:
+					lowestValue = value
+					bestCoord = neighbour
 
 		return bestCoord
