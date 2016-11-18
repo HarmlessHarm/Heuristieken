@@ -37,6 +37,7 @@ class Board(object):
 
     def removeElementAt(self, xyz):
         self.board[xyz] = 0
+        return True
 
     def addLayer(self):
         x, y = (self.x_dim, self.y_dim)
@@ -92,6 +93,12 @@ class Board(object):
             if not self.setElementAt(net, x,y,z):
                 return False
         return True
+
+    def removeNetPath(self, net):
+        if type(net.path) is list:
+            for (x,y,z) in net.path[1:-1]:
+                self.removeElementAt((x,y,z))
+        return True        
 
 class Gate(object):
 

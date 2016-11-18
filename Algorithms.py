@@ -1,6 +1,37 @@
 import numpy as np
 from main import *
 from random import shuffle
+import sys
+
+def runAlgorithm(alg_str, board, netlist):
+	failedCount = 0
+	for i, (start, end) in enumerate(netlist):
+			#print "Planning path for net", i, "from gate ", start, board.gates[start], " to gate ", end, board.gates[end]
+			net = None
+			if alg_str=='astar':
+				net = Net(board.gates[start], board.gates[end], i)
+				alg = AStar(board, net)
+				net = alg.createPath(net.start_gate, net.end_gate)
+			elif alg_str=='dijkstra':
+				net = Net(start, end, i)
+				alg = Dijkstra(board, net)
+				net = alg.createPath()
+			elif alg_str=='simple':
+				net = Net(start, end, i)
+				alg = EasyPath(board)
+				net = alg.createPath(net)
+				board.removeNetPath(net)
+
+			if not net.path:
+					print 'Failed planning a path for net', i, '!'
+					failedCount += 1
+					continue
+			#print 'about to set this planned path: ', plannedPath
+			if not board.setNetPath(net):
+				print 'Path is planned over an occupied position, something went seriously wrong!'
+				break
+	print 'Failed planning paths for: ', failedCount, 'nets'
+
 
 class EasyPath(object):
 	"""docstring for EasyPath"""
@@ -182,11 +213,12 @@ class EasyPath(object):
 
 class AStar(object):
 	"""docstring for AStar"""
-	def __init__(self, board):
+	def __init__(self, board, net):
 		super(AStar, self).__init__()
 		self.board = board	
+		self.net = net
 	
-	def aStar(self, start, goal):
+	def createPath(self, start, goal):
 		(x,y,z) = self.board.getDimensions()
 		(x_start, y_start, z_start) = start
 		#For each node, whether it has been evaluated
@@ -218,7 +250,9 @@ class AStar(object):
 			#if currentNode is adjacent to goal node, return the path to currentNode
 			if goal in self.board.getAllNeighbours(cx,cy,cz):
 				cameFrom[goal] = (cx,cy,cz)
-				return self.reconstructPath(cameFrom, goal)
+				path = self.reconstructPath(cameFrom, goal)
+				self.net.path = path
+				return self.net
 
 			openSet.remove((cx, cy, cz))
 			closedSet[cx][cy][cz] = 1
@@ -236,8 +270,8 @@ class AStar(object):
 				cameFrom[(nx,ny,nz)] = (cx,cy,cz)
 				gScore[nx][ny][nz] = tentative_gscore
 				fScore[nx][ny][nz] = gScore[nx][ny][nz] + self.costEstimate((nx,ny,nz),goal)
-
-		return False
+		self.net.path = False
+		return self.net
 
 	def distance(self, node):
 		(x,y,z) = node
@@ -260,28 +294,84 @@ class AStar(object):
 			path.append(currentNode)
 		return list(reversed(path))
 
-if __name__ == '__main__':
-	
-	netlists = readNetlists()
-	board = createBoard(30)
-	failedCount = 0
-	netlist = netlists[0]
-	#shuffle(netlist)
-	for i, (start, end) in enumerate(netlist):
-		net = Net(board.gates[start], board.gates[end], 1)
-		print "Planning the path", i, "from gate ", start, board.gates[start], " to gate ", end, board.gates[end]
-		alg = AStar(board)
-		plannedPath = alg.aStar(net.start_gate, net.end_gate)
-		if not plannedPath:
-			print 'Failed planning a path for net', i, '!'
-			failedCount += 1
-			continue
+class Dijkstra(object):
+	"""docstring for Dijkstra"""
+	def __init__(self, board, net):
+		super(Dijkstra, self).__init__()
+		self.board = board
+		self.net = net
+		self.remaining = {}
+		self.explored = {}
 
-		#print 'about to set this planned path: ', plannedPath
-		net.path = plannedPath
-		if not board.setNetPath(net):
-			print 'Path is planned over an occupied position!'
-			break
-	print 'Failed planning paths for: ', failedCount, 'nets'	
-	
+	def createPath(self):
 
+		start = self.board.gates[self.net.start_gate]
+		end = self.board.gates[self.net.end_gate]
+
+		self.remaining[start] = 0
+		ended = False
+		while not ended:
+			newRemaining = {}
+			for coord, val in self.remaining.iteritems():
+				if end in self.board.getAllNeighbours(coord[0],coord[1],coord[2]):
+					ended = True
+				rem = self.explore(coord, val)
+				if rem == False:
+					self.net.path = False
+					return self.net
+				newRemaining.update(rem)
+				self.explored[coord] = val
+			if newRemaining == {}:
+				self.net.path = False
+				return self.net
+			self.remaining = newRemaining.copy()
+
+		coord = end
+		self.net.addPos(end)
+		self.explored[end] = val + 1
+		found = False
+		while not found:
+			if start in self.board.getAllNeighbours(coord[0],coord[1],coord[2]):
+				found = True
+				nextCoord = start
+			else:
+				nextCoord = self.getLowestValue(coord)
+				if not nextCoord:
+					self.net.path = False
+					return self.net
+
+			self.net.addPos(nextCoord)
+			coord = nextCoord
+
+		return self.net
+
+
+	def explore(self, coord, val):
+
+		newRemaining = {}
+
+		neighbours = self.board.getOpenNeighbours(coord[0], coord[1], coord[2])
+		if len(neighbours) == 0:
+			return False
+
+		for neighbour in neighbours:
+			if neighbour not in self.explored:
+				newRemaining[neighbour] = val + 1
+
+		return newRemaining
+
+
+	def getLowestValue(self, coord):
+
+		neighbours = self.board.getOpenNeighbours(coord[0], coord[1], coord[2])
+		if len(neighbours) == 0:
+			return False
+		lowestValue = sys.maxint
+		for neighbour in neighbours:
+			if neighbour in self.explored:
+				value = self.explored[neighbour]
+				if value < lowestValue:
+					lowestValue = value
+					bestCoord = neighbour
+
+		return bestCoord
