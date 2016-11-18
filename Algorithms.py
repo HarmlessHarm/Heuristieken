@@ -26,6 +26,8 @@ def runAlgorithm(alg_str, board, netlist):
 					print 'Failed planning a path for net', i, '!'
 					failedCount += 1
 					continue
+			else:
+				board.nets[net.net_id]=net
 			#print 'about to set this planned path: ', plannedPath
 			if not board.setNetPath(net):
 				print 'Path is planned over an occupied position, something went seriously wrong!'
