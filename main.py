@@ -1,7 +1,7 @@
 from Objects import Board, Gate, Net
 from Algorithms import *
 from Dijkstra import *
-# from Visualizer import Visualizer
+from Visualizer import *
 import numpy as np
 import json
 import ast
@@ -73,6 +73,9 @@ if __name__ == '__main__':
 	print 'Running', alg, 'on board', b_id, 'with netlist', n_id
 	runAlgorithm(alg, board, netlist)
 
+	if args.visualization:
+		v = Visualizer(board)
+		v.start()
 
 
 	
