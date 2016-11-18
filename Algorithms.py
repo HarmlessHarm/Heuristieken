@@ -280,7 +280,7 @@ class AStar(object):
 		distance = 1
 		for (nx,ny,nz) in self.board.getAllNeighbours(x,y,z):
 			if type(self.board.getElementAt(nx,ny,nz)) is Gate:
-				distance += 10
+				distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
 		return distance
 
 	#Very optimistic heuristic, it returns the manhattan distance between the 2 nodes
