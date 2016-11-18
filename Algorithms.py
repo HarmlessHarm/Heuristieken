@@ -227,7 +227,7 @@ class AStar(object):
 				if closedSet[nx][ny][nz]:
 					continue #neighbour is already evaluated
 
-				tentative_gscore = gScore[cx][cy][cz] + 1
+				tentative_gscore = gScore[cx][cy][cz] + self.distance((nx,ny,nz))
 				if not (nx,ny,nz) in openSet:
 					openSet.append((nx,ny,nz))
 				elif tentative_gscore >= gScore[nx][ny][nz] >= 0:
@@ -239,6 +239,13 @@ class AStar(object):
 
 		return False
 
+	def distance(self, node):
+		(x,y,z) = node
+		distance = 1
+		for (nx,ny,nz) in self.board.getAllNeighbours(x,y,z):
+			if type(self.board.getElementAt(nx,ny,nz)) is Gate:
+				distance += 10
+		return distance
 
 	#Very optimistic heuristic, it returns the manhattan distance between the 2 nodes
 	def costEstimate(self, node1, node2):
@@ -259,7 +266,7 @@ if __name__ == '__main__':
 	board = createBoard(30)
 	failedCount = 0
 	netlist = netlists[0]
-	shuffle(netlist)
+	#shuffle(netlist)
 	for i, (start, end) in enumerate(netlist):
 		net = Net(board.gates[start], board.gates[end], 1)
 		print "Planning the path", i, "from gate ", start, board.gates[start], " to gate ", end, board.gates[end]
