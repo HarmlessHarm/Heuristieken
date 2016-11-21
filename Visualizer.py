@@ -44,7 +44,7 @@ class Visualizer(object):
 			net = nets[net_id]
 			for i, (x,y,z) in enumerate(net.path[:-1]):
 				(nx,ny,nz) = net.path[i+1]
-				ax.plot([x,nx],[y,ny],[z,nz], color=color)
+				ax.plot([x,nx],[y,ny],[z,nz], color=color, alpha=0.8)
 
 	
 if __name__ == '__main__':
