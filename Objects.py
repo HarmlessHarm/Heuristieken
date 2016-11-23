@@ -1,4 +1,5 @@
 import pprint
+import copy
 import numpy as np
 
 
@@ -10,9 +11,7 @@ class Board(object):
         self.x_dim = x_dim
         self.y_dim = y_dim
         self.z_dim = z_dim
-
         self.board = np.zeros((x_dim, y_dim, z_dim), dtype=object)
-
         self.gates = {}
         self.nets = {}
 
@@ -98,7 +97,21 @@ class Board(object):
         if type(net.path) is list:
             for (x,y,z) in net.path[1:-1]:
                 self.removeElementAt((x,y,z))
-        return True        
+        return True
+
+    # def copyThisBoard(self):
+    #     newBoard = type(self)(self.x_dim, self.y_dim, self.z_dim)
+    #     print "during deepcopy method type of new board is:", type(newBoard)
+    #     newArray = np.copy(self.board)
+    #     newGates = copy.deepcopy(self.gates)
+    #     newNets = copy.deepcopy(self.nets)
+    #     newBoard.board = newArray
+    #     newBoard.gates = newGates
+    #     newBoard.nets = newNets
+    #     return newBoard
+
+        
+
 
 class Gate(object):
 
@@ -132,7 +145,7 @@ class TreeNode(object):
     """docstring for TreeNode"""
     def __init__(self, board, previous, netlist):
         super(TreeNode, self).__init__()
-        self.board = Board
+        self.board = board
         self.previous = previous
         self.netlist = netlist
 

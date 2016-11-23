@@ -3,7 +3,7 @@ from main import *
 from random import shuffle
 import sys
 from Objects import *
-from copy import deepcopy
+import copy
 
 def runAlgorithm(alg_str, board, netlist):
 	failedCount = 0
@@ -405,11 +405,11 @@ class DepthFirst(object):
 				discovered.append(currentNode)
 
 				for (start, end) in currentNode.netlist:
-					new_board = currentNode.board.deepcopy()
-					new_netlist = currentNode.netlist.deepcopy()
+					new_board = copy.copy(currentNode.board)
+					new_netlist = copy.copy(currentNode.netlist)
 					new_netlist.remove((start, end))
 
-					net = Net(new_board.gates[start], new_board.gates[end], len(currentNode))
+					net = Net(new_board.gates[start], new_board.gates[end], len(currentNode.netlist))
 					alg = AStar(new_board, net)
 					net = alg.createPath(net.start_gate, net.end_gate)
 
