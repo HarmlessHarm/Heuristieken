@@ -1,15 +1,10 @@
-from Objects import Board, Gate, Net
-from Algorithms import *
-from Dijkstra import *
-from Visualizer import *
+from modules import *
 import numpy as np
-import json
-import ast
-import argparse
+import json, ast, argparse
 
 def readNetlists():
 
-	netlist_file = 'netlist.txt'
+	netlist_file = 'resources/netlist.txt'
 	net_lists = []
 	with open(netlist_file, 'r') as netlist_data:
 	    nd = netlist_data.readlines()
@@ -24,7 +19,7 @@ def readNetlists():
 		
 def createBoard(i, layers):
 
-	file = 'prints.json'
+	file = 'resources/prints.json'
 
 	with open(file) as json_data:
 

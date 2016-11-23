@@ -1,7 +1,6 @@
 import pprint
 import numpy as np
 
-
 class Board(object):
     """docstring for Board"""
 
@@ -105,6 +104,7 @@ class Gate(object):
     """ Docstring for Gate """
 
     def __init__(self, gate_id, x, y, z=0):
+        super(Gate, self).__init__()
         self.gate_id = gate_id
         self.x = x
         self.y = y
@@ -113,12 +113,12 @@ class Gate(object):
     def getCoordinates(self, coordinates):
         return (x, y, z)
 
+class Net(object):
 
-class Net:
-
-#   """ Docstring for Net """
+    """ Docstring for Net """
 
     def __init__(self, start_gate, end_gate, net_id):
+        super(Net, self).__init__()
         self.net_id = net_id
         self.start_gate = start_gate
         self.end_gate = end_gate
