@@ -309,6 +309,7 @@ class Dijkstra(object):
 
 	def createPath(self):
 
+		# define start/end gate
 		start = self.board.gates[self.net.start_gate]
 		end = self.board.gates[self.net.end_gate]
 
@@ -360,6 +361,7 @@ class Dijkstra(object):
 
 		for neighbour in neighbours:
 			if neighbour not in self.explored:
+				# increase neighbour values based on current pos
 				newRemaining[neighbour] = val + 1
 
 		return newRemaining
@@ -370,10 +372,15 @@ class Dijkstra(object):
 		neighbours = self.board.getOpenNeighbours(coord[0], coord[1], coord[2])
 		if len(neighbours) == 0:
 			return False
+
+		# set max value
 		lowestValue = sys.maxint
+		
 		for neighbour in neighbours:
 			if neighbour in self.explored:
+				# find neighbour value
 				value = self.explored[neighbour]
+				# if current neighbour value is lowest till now
 				if value < lowestValue:
 					lowestValue = value
 					bestCoord = neighbour
@@ -392,23 +399,28 @@ class DepthFirst(object):
 		tree = []
 		discovered = []
 
+		# create TreeNode object for root
 		start_node = TreeNode(self.board, "start", self.netlist)
 
 		tree.append(start_node)
 
+
 		while len(tree) != 0:
 			currentNode = tree.pop()
 			if len(currentNode.netlist) == 0:
+				# solution is found
 				return currentNode.board
 
 			if currentNode not in discovered:
 				discovered.append(currentNode)
 
+				# check every net in netlist
 				for (start, end) in currentNode.netlist:
 					new_board = currentNode.board.deepcopy()
 					new_netlist = currentNode.netlist.deepcopy()
 					new_netlist.remove((start, end))
 
+					# create net object for current net
 					net = Net(new_board.gates[start], new_board.gates[end], len(currentNode))
 					alg = AStar(new_board, net)
 					net = alg.createPath(net.start_gate, net.end_gate)
@@ -417,12 +429,14 @@ class DepthFirst(object):
 						continue
 
 					new_board.nets[net.net_id] = net
+					# add path to board
 					new_board.setNetPath(net)
 
+					# create new TreeNode object for current net
 					new_node = TreeNode(new_board, currentNode, new_netlist)
 
 					tree.append(new_node)
-
+		# no solution found
 		return False
 
 if __name__ == '__main__':
