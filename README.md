@@ -4,14 +4,15 @@
 
 This python application works with in a virtual environment so all packages can be easily maintained and a certain python version can be set.
 
-## Installing pip and virtualenv
+## Installing pip, virtualenv and visualisation package
 
 ### Linux
-`sudo apt-get install python-pip`   
+`sudo apt-get install python-pip python-tk`   
 `sudo pip install virtualenv`   
 
 ### macOS
 `sudo easy_install pip`   
+`brew install python --with-brewed-tk` *(This needs confirmation)*   
 `sudo pip install virtualenv`
 
 ### Windows
