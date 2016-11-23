@@ -114,7 +114,7 @@ class Gate(object):
         return (x, y, z)
 
 
-class Net:
+class Net(object):
 
 #   """ Docstring for Net """
 
@@ -128,6 +128,13 @@ class Net:
         x, y ,z = xyz
         self.path.append((x,y,z))
 
+class TreeNode(object):
+    """docstring for TreeNode"""
+    def __init__(self, board, previous, netlist):
+        super(TreeNode, self).__init__()
+        self.board = Board
+        self.previous = previous
+        self.netlist = netlist
 
 if __name__ == '__main__':
     b = Board(3, 3)

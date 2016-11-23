@@ -2,6 +2,8 @@ import numpy as np
 from main import *
 from random import shuffle
 import sys
+from Objects import *
+from copy import deepcopy
 
 def runAlgorithm(alg_str, board, netlist):
 	failedCount = 0
@@ -377,3 +379,62 @@ class Dijkstra(object):
 					bestCoord = neighbour
 
 		return bestCoord
+
+
+class DepthFirst(object):
+	"""docstring for ClassName"""
+	def __init__(self, netlist, board):
+		super(DepthFirst, self).__init__()
+		self.netlist = netlist
+		self.board = board
+
+	def solve(self):
+		tree = []
+		discovered = []
+
+		start_node = TreeNode(self.board, "start", self.netlist)
+
+		tree.append(start_node)
+
+		while len(tree) != 0:
+			currentNode = tree.pop()
+			if len(currentNode.netlist) == 0:
+				return currentNode.board
+
+			if currentNode not in discovered:
+				discovered.append(currentNode)
+
+				for (start, end) in currentNode.netlist:
+					new_board = currentNode.board.deepcopy()
+					new_netlist = currentNode.netlist.deepcopy()
+					new_netlist.remove((start, end))
+
+					net = Net(new_board.gates[start], new_board.gates[end], len(currentNode))
+					alg = AStar(new_board, net)
+					net = alg.createPath(net.start_gate, net.end_gate)
+
+					if not net.path:
+						continue
+
+					new_board.nets[net.net_id] = net
+					new_board.setNetPath(net)
+
+					new_node = TreeNode(new_board, currentNode, new_netlist)
+
+					tree.append(new_node)
+
+		return False
+
+if __name__ == '__main__':
+    b = createBoard(2, 1)
+    n = readNetlists()
+    n = n[6]
+
+    test = DepthFirst(n, b)
+    print(test.solve())
+
+
+
+
+
+
