@@ -36,7 +36,6 @@ def runAlgorithm(alg_str, board, netlist):
 				break
 	print 'Failed planning paths for: ', failedCount, 'nets'
 
-
 class EasyPath(object):
 	"""docstring for EasyPath"""
 	def __init__(self, board):

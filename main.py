@@ -1,14 +1,10 @@
-from Objects import Board, Gate, Net
-from Algorithms import *
-# from Visualizer import Visualizer
+from modules import *
 import numpy as np
-import json
-import ast
-import argparse
+import json, ast, argparse
 
 def readNetlists():
 
-	netlist_file = 'netlist.txt'
+	netlist_file = 'resources/netlist.txt'
 	net_lists = []
 	with open(netlist_file, 'r') as netlist_data:
 	    nd = netlist_data.readlines()
@@ -23,7 +19,7 @@ def readNetlists():
 		
 def createBoard(i, layers):
 
-	file = 'prints.json'
+	file = 'resources/prints.json'
 
 	with open(file) as json_data:
 
@@ -72,6 +68,9 @@ if __name__ == '__main__':
 	print 'Running', alg, 'on board', b_id, 'with netlist', n_id
 	runAlgorithm(alg, board, netlist)
 
+	if args.visualization:
+		v = Visualizer(board)
+		v.start()
 
 
 	
