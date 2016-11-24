@@ -1,8 +1,10 @@
 import numpy as np
 from random import shuffle
 import sys
+from Objects import *
+from helpers import *
+from Visualizer import *
 import copy
-from Objects import Gate
 
 class EasyPath(object):
 	"""docstring for EasyPath"""
@@ -367,34 +369,36 @@ class DepthFirst(object):
 		discovered = []
 
 		# create TreeNode object for root
-		start_node = TreeNode(self.board, "start", self.netlist)
-
+		start_node = TreeNode(self.board, 'start', self.netlist)
 		tree.append(start_node)
-
+		iterations = 0
 
 		while len(tree) != 0:
-			currentNode = tree.pop()
+			iterations += 1
+			print 'size of tree:',len(tree), 'nets to be solved:', len(currentNode.netlist)
+
 			if len(currentNode.netlist) == 0:
-				# solution is found
-				return currentNode.board
+				n = self.reconstructNetlist(currentNode)
+				print 'Finding the answer took',iterations,'iterations' 
+				return currentNode.board, n
 
 			if currentNode not in discovered:
 				discovered.append(currentNode)
 
 				# check every net in netlist
 				for (start, end) in currentNode.netlist:
-					new_board = copy.copy(currentNode.board)
-					new_netlist = copy.copy(currentNode.netlist)
+					new_board = copy.deepcopy(currentNode.board)
+					new_netlist = copy.deepcopy(currentNode.netlist)
 					new_netlist.remove((start, end))
 
 					# create net object for current net
-					net = Net(new_board.gates[start], new_board.gates[end], len(currentNode))
+					net = Net(new_board.gates[start], new_board.gates[end], len(currentNode.netlist))
 					alg = AStar(new_board, net)
 					net = alg.createPath(net.start_gate, net.end_gate)
 
 					if not net.path:
 						continue
-
+					
 					new_board.nets[net.net_id] = net
 					# add path to board
 					new_board.setNetPath(net)
@@ -403,5 +407,34 @@ class DepthFirst(object):
 					new_node = TreeNode(new_board, currentNode, new_netlist)
 
 					tree.append(new_node)
+				
 		# no solution found
 		return False
+
+	#ieder element
+	def reconstructNetlist(self, currentNode):
+		netlist = []
+		lastNode = currentNode.previousNode
+		while lastNode != 'start':
+			#Het laatst opgeloste net is het verschil tussen de overgebleven netlist van currentnode en lastnode
+			net = set(lastNode.netlist).symmetric_difference(currentNode.netlist).pop()
+			netlist.append(net)
+			currentNode = lastNode
+			lastNode = currentNode.previousNode
+		reversed(netlist)
+		return netlist
+
+if __name__ == '__main__':
+	b = createBoard(0, 7)
+	netlists = readNetlists()
+	n = netlists[0]
+	#n = [(0,2), (1,3)]
+	#n = [(0,3),(1,2)]
+	d = DepthFirst(n, b)
+	solution, bestnetlist = d.solve()
+	print bestnetlist
+	if type(solution) is Board:
+		v = Visualizer(solution)
+		v.start()
+	else:
+		print 'unable to solve board'
