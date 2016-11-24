@@ -28,6 +28,8 @@ class Sorter(object):
 		else:
 			return -1
 
+	def random(self):
+		pass
 
 
 if __name__ == '__main__':
@@ -35,7 +37,8 @@ if __name__ == '__main__':
 	b = createBoard(0,1)
 	netlists = readNetlists()
 	n = netlists[0]
-	s = Sorter(n,b)
-	print s.sortNetlistByDistance()
+	for i in range(100):
+		s = Sorter(n,b)
+		s.sortNetlistByDistance()
 
 	

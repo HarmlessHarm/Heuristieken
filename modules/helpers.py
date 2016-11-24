@@ -1,6 +1,7 @@
 import json, ast, os
 import numpy as np
 from Objects import *
+from Algorithms import *
 
 def readNetlists():
 
@@ -36,3 +37,34 @@ def createBoard(i, layers):
 	        b.setElementAt(g, g.x, g.y)
 
 	    return b
+
+def runAlgorithm(alg_str, board, netlist):
+	failedCount = 0
+	for i, (start, end) in enumerate(netlist):
+			#print "Planning path for net", i, "from gate ", start, board.gates[start], " to gate ", end, board.gates[end]
+			net = None
+			if alg_str=='astar':
+				net = Net(board.gates[start], board.gates[end], i)
+				alg = AStar(board, net)
+				net = alg.createPath(net.start_gate, net.end_gate)
+			elif alg_str=='dijkstra':
+				net = Net(start, end, i)
+				alg = Dijkstra(board, net)
+				net = alg.createPath()
+			elif alg_str=='simple':
+				net = Net(start, end, i)
+				alg = EasyPath(board)
+				net = alg.createPath(net)
+				board.removeNetPath(net)
+
+			if not net.path:
+					print 'Failed planning a path for net', i, '!'
+					failedCount += 1
+					continue
+			else:
+				board.nets[net.net_id]=net
+			#print 'about to set this planned path: ', plannedPath
+			if not board.setNetPath(net):
+				print 'Path is planned over an occupied position, something went seriously wrong!'
+				break
+	print 'Failed planning paths for: ', failedCount, 'nets'
