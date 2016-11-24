@@ -142,8 +142,8 @@ class Net(object):
 
 class TreeNode(object):
     """docstring for TreeNode"""
-    def __init__(self, board, previous, netlist):
+    def __init__(self, board, previousNode, netlist):
         super(TreeNode, self).__init__()
         self.board = board
-        self.previous = previous
+        self.previousNode = previousNode
         self.netlist = netlist
