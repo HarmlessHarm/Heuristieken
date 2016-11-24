@@ -1,4 +1,6 @@
-
+import random, pprint
+import numpy as np
+import matplotlib.pyplot as plt
 
 class Sorter(object):
 	"""docstring for Sorter"""
@@ -29,16 +31,27 @@ class Sorter(object):
 			return -1
 
 	def random(self):
-		pass
+		random.shuffle(self.netlist)
 
 
 if __name__ == '__main__':
 	from helpers import *
-	b = createBoard(0,1)
 	netlists = readNetlists()
 	n = netlists[0]
-	for i in range(100):
+	l = []
+	validLists = []
+	for i in range(50):
+		print i,
+		b = createBoard(0, 30)
 		s = Sorter(n,b)
-		s.sortNetlistByDistance()
-
-	
+		s.random()
+		if runAlgorithm('astar', s.board, s.netlist, True):
+			validLists.append(s.netlist)
+			solved, score = s.board.getScore()
+			l.append(score)
+	# a = np.histogram(l)
+	# print a
+	pprint.pprint(validLists)
+	print l
+	plt.hist(l)
+	plt.show()

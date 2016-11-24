@@ -38,7 +38,7 @@ def createBoard(i, layers):
 
 	    return b
 
-def runAlgorithm(alg_str, board, netlist):
+def runAlgorithm(alg_str, board, netlist, suppress=False):
 	failedCount = 0
 	for i, (start, end) in enumerate(netlist):
 			#print "Planning path for net", i, "from gate ", start, board.gates[start], " to gate ", end, board.gates[end]
@@ -57,14 +57,18 @@ def runAlgorithm(alg_str, board, netlist):
 				net = alg.createPath(net)
 				board.removeNetPath(net)
 
+			# if failedCount > 0:
+				
 			if not net.path:
-					print 'Failed planning a path for net', i, '!'
+					if not suppress: print 'Failed planning a path for net', i, '!'
 					failedCount += 1
-					continue
+					return False
+					# continue
 			else:
 				board.nets[net.net_id]=net
 			#print 'about to set this planned path: ', plannedPath
 			if not board.setNetPath(net):
-				print 'Path is planned over an occupied position, something went seriously wrong!'
+				if not suppress: print 'Path is planned over an occupied position, something went seriously wrong!'
 				break
-	print 'Failed planning paths for: ', failedCount, 'nets'
+	print 'Found a netlist with no errors'
+	return True
