@@ -31,7 +31,7 @@ class Sorter(object):
 
 
 if __name__ == '__main__':
-	from .. import *
+	from helpers import *
 	b = createBoard(0,1)
 	netlists = readNetlists()
 	n = netlists[0]

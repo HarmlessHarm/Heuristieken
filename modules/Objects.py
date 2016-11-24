@@ -147,11 +147,3 @@ class TreeNode(object):
         self.board = board
         self.previous = previous
         self.netlist = netlist
-
-if __name__ == '__main__':
-    b = Board(3, 3)
-    b.printBoard()
-    print "add"
-    b.addLayer()
-    print 'added'
-    print b.board.shape[2]

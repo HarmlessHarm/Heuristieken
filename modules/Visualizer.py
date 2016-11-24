@@ -1,9 +1,6 @@
 import matplotlib as mpl 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
-from Objects import *
-from Algorithms import *
-from main import *
 import numpy as np
 
 class Visualizer(object):

@@ -437,17 +437,3 @@ class DepthFirst(object):
 					tree.append(new_node)
 		# no solution found
 		return False
-
-if __name__ == '__main__':
-    b = createBoard(2, 1)
-    n = readNetlists()
-    n = n[6]
-
-    test = DepthFirst(n, b)
-    print(test.solve())
-
-
-
-
-
-
