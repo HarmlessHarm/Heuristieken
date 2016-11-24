@@ -4,6 +4,7 @@ import sys
 from Objects import *
 from helpers import *
 from Visualizer import *
+from Sorter import *
 import copy
 
 class EasyPath(object):
@@ -252,6 +253,9 @@ class AStar(object):
 		for (nx,ny,nz) in self.board.getAllNeighbours(x,y,z):
 			if type(self.board.getElementAt(nx,ny,nz)) is Gate:
 				distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
+			elif type(self.board.getElementAt(nx,ny,nz)) is Net:
+				distance += 1
+
 		return distance
 
 	#Very optimistic heuristic, it returns the manhattan distance between the 2 nodes
@@ -374,8 +378,9 @@ class DepthFirst(object):
 		iterations = 0
 
 		while len(tree) != 0:
+			currentNode = tree.pop()
 			iterations += 1
-			print 'size of tree:',len(tree), 'nets to be solved:', len(currentNode.netlist)
+			print 'size of stack:',len(tree), 'nets to be solved:', len(currentNode.netlist)
 
 			if len(currentNode.netlist) == 0:
 				n = self.reconstructNetlist(currentNode)
@@ -384,6 +389,10 @@ class DepthFirst(object):
 
 			if currentNode not in discovered:
 				discovered.append(currentNode)
+
+				#sort netlist by distance (low - high)
+				s = Sorter(currentNode.netlist, currentNode.board)
+				currentNode.netlist = s.sortNetlistByDistance()
 
 				# check every net in netlist
 				for (start, end) in currentNode.netlist:
