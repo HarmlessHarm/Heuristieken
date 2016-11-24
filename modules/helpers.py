@@ -62,7 +62,6 @@ def runAlgorithm(alg_str, board, netlist, suppress=False):
 			if not net.path:
 					if not suppress: print 'Failed planning a path for net', i, '!'
 					failedCount += 1
-					print "Failed"
 					return False
 					# continue
 			else:
@@ -71,5 +70,5 @@ def runAlgorithm(alg_str, board, netlist, suppress=False):
 			if not board.setNetPath(net):
 				if not suppress: print 'Path is planned over an occupied position, something went seriously wrong!'
 				break
-	print 'Failed planning paths for: ', failedCount, 'nets'
+	print 'Found a netlist with no errors'
 	return True
