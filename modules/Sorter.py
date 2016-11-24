@@ -1,4 +1,3 @@
-from main import *
 
 
 class Sorter(object):
@@ -13,7 +12,9 @@ class Sorter(object):
 		return self.netlist
 		
 
-	def cmpByDistance(self, (a1, a2), (b1,b2)):
+	def cmpByDistance(self, a, b):
+		a1, a2 = a
+		b1, b2 = b
 		(xa1,ya1,za1) = self.board.gates[a1]
 		(xa2,ya2,za2) = self.board.gates[a2]
 		(xb1,yb1,zb1) = self.board.gates[b1]
@@ -27,15 +28,10 @@ class Sorter(object):
 		else:
 			return -1
 
-	# def cmpByCardinalDirection(self, (a1, a2), (b1,b2)):
-	# 	(xa1,ya1,za1) = self.board.gates[a1]
-	# 	(xa2,ya2,za2) = self.board.gates[a2]
-	# 	(xb1,yb1,zb1) = self.board.gates[b1]
-	# 	(xb2,yb2,zb2) = self.board.gates[b2]
-	# 	pass
 
 
 if __name__ == '__main__':
+	from .. import *
 	b = createBoard(0,1)
 	netlists = readNetlists()
 	n = netlists[0]
