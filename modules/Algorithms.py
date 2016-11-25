@@ -2,7 +2,7 @@ import numpy as np
 from random import shuffle
 import sys
 from Objects import *
-from helpers import *
+#from helpers import *
 from Visualizer import *
 from Sorter import *
 import copy
@@ -212,7 +212,7 @@ class AStar(object):
 		#array that contains f_scores for all nodes, the distance for getting to the goal node from start via that node
 		#Default is -1, as placeholder for infinity
 		fScore = np.full((x,y,z), -1, dtype='int64')
-		fScore[x_start][y_start][z_start] = self.costEstimate(start, goal)
+		fScore[x_start][y_start][z_start] = self.manhattanCostEstimate(start, goal)
 
 		while openSet != []:
 			#Set currentNode to be the node in openset with the lowest fscore (above -1)
@@ -243,10 +243,11 @@ class AStar(object):
 
 				cameFrom[(nx,ny,nz)] = (cx,cy,cz)
 				gScore[nx][ny][nz] = tentative_gscore
-				fScore[nx][ny][nz] = gScore[nx][ny][nz] + self.costEstimate((nx,ny,nz),goal)
+				fScore[nx][ny][nz] = gScore[nx][ny][nz] + self.manhattanCostEstimate((nx,ny,nz),goal)
 		self.net.path = False
 		return self.net
 
+	#Distance to node, based on its neighbours and the layer it is in
 	def distance(self, node):
 		(x,y,z) = node
 		distance = 1
@@ -254,12 +255,18 @@ class AStar(object):
 			if type(self.board.getElementAt(nx,ny,nz)) is Gate:
 				distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
 			elif type(self.board.getElementAt(nx,ny,nz)) is Net:
-				distance += 1
+				distance += 3 #Add one distance for every adjacent net, this should space things out a bit
+			#Make higher paths more attractive
+			distance += (self.board.z_dim / (nz+1))*self.board.z_dim
+
+			#Make paths on the middle layer more attractive
+			#distance += abs((self.board.z_dim/2)-nz)*10
 
 		return distance
 
+
 	#Very optimistic heuristic, it returns the manhattan distance between the 2 nodes
-	def costEstimate(self, node1, node2):
+	def manhattanCostEstimate(self, node1, node2):
 		(x,y,z) = node1
 		(x2,y2,z2) = node2
 		return abs(x2-x)+abs(y2-y)+abs(z2-z)

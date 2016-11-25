@@ -23,10 +23,10 @@ if __name__ == '__main__':
 
 	if args.board != None:
 		b_id = args.board
-		board = createBoard(b_id-1,len(netlist))
+		board = createBoard(b_id-1,10)
 	else:
 		b_id = 1
-		board = createBoard(b_id-1,len(netlist))
+		board = createBoard(b_id-1,10)
 		
 	if args.algorithm != None:
 		alg = args.algorithm

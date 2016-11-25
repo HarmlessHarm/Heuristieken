@@ -11,13 +11,16 @@ class Visualizer(object):
 	def start(self):
 		fig = plt.figure()
 		ax = fig.add_subplot(111,projection='3d')
-		#self.plotGridLines(ax)
+		ax.set_zlim([0,self.board.z_dim])
+		
+
+		# self.plotGridLines(ax)
 		self.plotGates(ax)
 		self.plotNets(ax)
 		ax.set_xlabel('width')
 		ax.set_ylabel('height')
 		ax.set_zlabel('layer')
-		#plt.axis('off')
+		# plt.axis('off')
 		plt.show()
 
 	def plotGates(self, ax):
@@ -25,6 +28,7 @@ class Visualizer(object):
 		for g in self.board.gates:
 			x,y,z = self.board.gates[g]
 			ax.scatter(x,y,z, c='r', marker='s')
+			ax.text(x,y,z,str(g),color='k', fontsize=12)
 
 	def plotGridLines(self, ax):
 		width, height, depth = self.board.getDimensions()	
