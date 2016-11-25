@@ -2,7 +2,7 @@ import numpy as np
 from random import shuffle
 import sys
 from Objects import *
-from helpers import *
+# from helpers import *
 from Visualizer import *
 from Sorter import *
 import copy
@@ -254,7 +254,7 @@ class AStar(object):
 			if type(self.board.getElementAt(nx,ny,nz)) is Gate:
 				distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
 			elif type(self.board.getElementAt(nx,ny,nz)) is Net:
-				distance += 1
+				distance += 3
 
 		return distance
 
