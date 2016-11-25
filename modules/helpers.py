@@ -2,6 +2,7 @@ import json, ast, os
 import numpy as np
 from Objects import *
 from Algorithms import *
+import sys
 
 def readNetlists():
 
@@ -95,7 +96,9 @@ def checkNetlist(alg_str, board, netlist):
 
 def checkPath(alg_str, board, start, end, i):
 	net = None
-	print 'checking', i
+	print '.',
+	sys.stdout.flush()
+	# print 'hoi?'
 	if alg_str=='astar':
 		net = Net(board.gates[start], board.gates[end], i)
 		alg = AStar(board, net)
@@ -111,7 +114,7 @@ def checkPath(alg_str, board, start, end, i):
 		board.removeNetPath(net)
 		
 	if not net.path:
-		print 'Failed planning a path for net', i, '!'
+		print '\nFailed planning a path for net', i, '!'
 		return False
 	else:
 		board.nets[net.net_id]=net
