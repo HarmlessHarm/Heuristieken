@@ -32,3 +32,13 @@ Please no
 ## Way of work
 Make sure you activate your virtualenv before you start working on the project.   
 When you install a new package use the `pip freeze > requirements.txt` command to export the package requirements to git.
+
+
+## Running main
+`python main.py` runs standard script, main has following options   
+`--help` show help file   
+`-b`, `--board` Specify which board to use (1 or 2), default is 1   
+`-n`, `--netlist` Specify which netlist to use (1-7), default is netlist 1   
+`-a`, `--algorithm` Specify which algorithm to use, default is astar   
+`-v`, `--visualisation` 3D visualisation, default is off   
+`-r`, `--recursion` Enable recursion on net order, default is off   
