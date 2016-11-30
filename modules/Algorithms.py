@@ -439,6 +439,66 @@ class DepthFirst(object):
 		reversed(netlist)
 		return netlist
 
+class BreadthFirst(object):
+	"""docstring for BreadthFirst"""
+	def __init__(self, start, end, board):
+		super(BreadthFirst, self).__init__()
+		self.start = start
+		self.end = end
+		self.maze = maze
+
+		solutions = []
+
+	def solve(self):
+		queue = []
+		visited = []
+		dictPreviousNode = {}
+
+		queue.insert(0, start)
+
+		while len(queue) != 0:
+			currentNode = queue.pop()
+
+			if currentNode not in visited:
+				# vind alle buren
+				neighbours = board.getOpenNeighbours
+
+				# voeg buren toe aan queue als je deze nog niet gecheckt hebt
+				for neighbour in neighbours:
+					if neighbour in visited:
+						continue
+
+					if neighbour not in dictPreviousNode.keys():
+						dictPreviousNode[neighbour] = [currentNode]
+					else:
+						dictPreviousNode[neighbour].append(currentNode)
+
+					if neighbour is end:
+						solutions.extend(self.reconstructPaths(dictPreviousNode, neighbour))
+						return solutions
+
+					queue.insert(0, neighbour)
+
+				visited.append(currentNode)
+
+		# no solution found
+		return False
+
+
+	def reconstructPaths(self, cameFrom, currentNode):
+
+		path = [currentNode]
+		paths = [path]
+		while currentNode in cameFrom.keys():
+			if len(cameFrom[currentNode]) == 1:
+				
+			for previous in cameFrom[currentNode]:
+
+			currentNode = cameFrom[currentNode]
+			path.append(currentNode)
+		return list(reversed(path))
+
+
 if __name__ == '__main__':
 	b = createBoard(0, 7)
 	netlists = readNetlists()
