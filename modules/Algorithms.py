@@ -254,9 +254,9 @@ class AStar(object):
 			if type(self.board.getElementAt(nx,ny,nz)) is Gate:
 				distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
 			elif type(self.board.getElementAt(nx,ny,nz)) is Net:
-				distance += 3 #Add one distance for every adjacent net, this should space things out a bit
+				distance += 1 #Add one distance for every adjacent net, this should space things out a bit
 			#Make higher paths more attractive
-			distance += (self.board.z_dim / (nz+1)) * self.board.z_dim
+			distance += pow(self.board.z_dim, 2) / (nz+1)
 
 			#Make paths on the middle layer more attractive
 			#distance += abs((self.board.z_dim/2)-nz)*10
