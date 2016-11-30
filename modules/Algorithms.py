@@ -4,6 +4,7 @@ import sys
 from Objects import *
 from Visualizer import *
 from Sorter import *
+from helpers import *
 import copy
 
 class EasyPath(object):
@@ -254,7 +255,7 @@ class AStar(object):
 			if type(self.board.getElementAt(nx,ny,nz)) is Gate:
 				distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
 			elif type(self.board.getElementAt(nx,ny,nz)) is Net:
-				distance += 1 #Add one distance for every adjacent net, this should space things out a bit
+				distance += 3 #Add one distance for every adjacent net, this should space things out a bit
 			#Make higher paths more attractive
 			distance += pow(self.board.z_dim, 2) / (nz+1)
 
@@ -443,26 +444,30 @@ class BreadthFirst(object):
 	"""docstring for BreadthFirst"""
 	def __init__(self, start, end, board):
 		super(BreadthFirst, self).__init__()
-		self.start = start
-		self.end = end
-		self.maze = maze
-
-		solutions = []
+		self.start = board.gates[start]
+		self.end = board.gates[end]
+		self.board = board
 
 	def solve(self):
 		queue = []
 		visited = []
 		dictPreviousNode = {}
 
-		queue.insert(0, start)
-
+		queue.insert(0, self.start)
 		while len(queue) != 0:
 			currentNode = queue.pop()
 
 			if currentNode not in visited:
 				# vind alle buren
-				neighbours = board.getOpenNeighbours
+				(x,y,z) = currentNode
 
+				# If currentNode is adjacent to the end node, we are done!
+				if self.end in self.board.getAllNeighbours(x,y,z):
+					dictPreviousNode[self.end] = [currentNode]
+					return self.reconstructPaths(dictPreviousNode, [self.end])
+
+
+				neighbours = self.board.getOpenNeighbours(x,y,z)
 				# voeg buren toe aan queue als je deze nog niet gecheckt hebt
 				for neighbour in neighbours:
 					if neighbour in visited:
@@ -473,43 +478,38 @@ class BreadthFirst(object):
 					else:
 						dictPreviousNode[neighbour].append(currentNode)
 
-					if neighbour is end:
-						solutions.extend(self.reconstructPaths(dictPreviousNode, neighbour))
-						return solutions
-
 					queue.insert(0, neighbour)
 
 				visited.append(currentNode)
-
+		print 'breadth first iterated', iterationcount, 'times'
 		# no solution found
 		return False
 
-
-	def reconstructPaths(self, cameFrom, currentNode):
-
-		path = [currentNode]
-		paths = [path]
-		while currentNode in cameFrom.keys():
-			if len(cameFrom[currentNode]) == 1:
-				
-			for previous in cameFrom[currentNode]:
-
-			currentNode = cameFrom[currentNode]
-			path.append(currentNode)
-		return list(reversed(path))
-
+	def reconstructPaths(self, cameFrom, path, paths = []):
+		lastNode = path[-1]
+		if lastNode in cameFrom.keys():
+			for nextNode in cameFrom[lastNode]:
+				new_path = path + [nextNode]
+				paths = self.reconstructPaths(cameFrom, new_path, paths)
+		else:
+			paths += [path]
+		return paths
 
 if __name__ == '__main__':
-	b = createBoard(0, 7)
-	netlists = readNetlists()
-	n = netlists[0]
-	#n = [(0,2), (1,3)]
-	#n = [(0,3),(1,2)]
-	d = DepthFirst(n, b)
-	solution, bestnetlist = d.solve()
-	print bestnetlist
-	if type(solution) is Board:
-		v = Visualizer(solution)
-		v.start()
-	else:
-		print 'unable to solve board'
+	netlist = [(15, 8), (3, 15), (15, 5), (20, 19), (23, 4), (5, 7), (1, 0), (15, 21), (3, 5), (7, 13), (3, 23), (23, 8), (22, 13), (15, 17), (20, 10), (13, 18), (19, 2), (22, 11), (10, 4), (11, 24), (2, 20), (3, 4), (16, 9), (19, 5), (3, 0), (6, 14), (7, 9), (9, 13), (22, 16), (10, 7)]
+	board = runAlgorithm('astar', 0, netlist, 4, recursive=True)
+
+	net = board.nets[0]
+	board.removeNetPath(net)
+	print '\nremoved net from', net.start_gate, 'to', net.end_gate
+	(sx,sy,sz) = net.start_gate
+	(ex,ey,ez) = net.end_gate
+
+	startgate = board.getElementAt(sx,sy,sz)
+	endgate = board.getElementAt(ex,ey,ez)
+
+	alg = BreadthFirst(startgate.gate_id, endgate.gate_id, board)
+	paths = alg.solve()
+	print "I found", len(paths), "alternative paths"
+	print 'example 1:', paths[0]
+	print 'example 2:', paths[1]
