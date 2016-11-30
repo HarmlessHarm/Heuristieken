@@ -39,14 +39,14 @@ def createBoard(i, layers):
 
 	    return b
 
-def runAlgorithm(alg_str, board_number, netlist, recursive=True):
+def runAlgorithm(alg_str, board_number, netlist, maxLayers, recursive=True):
 	failedCount = 0
-	board = createBoard(board_number, 10)
-	print 'call runAlgorithm with', board
+	board = createBoard(board_number, maxLayers)
+	#print 'call runAlgorithm with', board
 	i = checkNetlist(alg_str, board, netlist)
 	if not i is True and recursive:
 		newNetlist = [netlist[i]] + netlist[:i] + netlist[i+1:]
-		board = runAlgorithm(alg_str, board_number, newNetlist)
+		board = runAlgorithm(alg_str, board_number, newNetlist, maxLayers)
 	return board
 	# for i, (start, end) in enumerate(netlist):
 	# 	#print "Planning path for net", i, "from gate ", start, board.gates[start], " to gate ", end, board.gates[end]
