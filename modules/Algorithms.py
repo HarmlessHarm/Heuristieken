@@ -171,7 +171,7 @@ class EasyPath(object):
 			return False	
 	
 	def goBack(self, curPos, board, net):
-	# Doesn't work as expected
+	# Does not work as expected
 		if len(net.path) > 1:
 			print '\ngoBack'
 			print net.path[-1], len(net.path)
@@ -214,13 +214,13 @@ class AStar(object):
 		fScore[x_start][y_start][z_start] = self.manhattanCostEstimate(start, goal)
 
 		while openSet != []:
-			#Set currentNode to be the node in openset with the lowest fscore (above -1)
+			# Set currentNode to be the node in openset with the lowest fscore (above -1)
 			(cx,cy,cz) = openSet[0]
 			for (x,y,z) in openSet:
 				if  0 <= fScore[x][y][z] < fScore[cx][cy][cz]:
 					(cx,cy,cz) = (x,y,z)
 
-			#if currentNode is adjacent to goal node, return the path to currentNode
+			# if currentNode is adjacent to goal node, return the path to currentNode
 			if goal in self.board.getAllNeighbours(cx,cy,cz):
 				cameFrom[goal] = (cx,cy,cz)
 				path = self.reconstructPath(cameFrom, goal)
@@ -246,7 +246,7 @@ class AStar(object):
 		self.net.path = False
 		return self.net
 
-	#Distance to node, based on its neighbours and the layer it is in
+	# Distance to node, based on its neighbours and the layer it is in
 	def distance(self, node):
 		(x,y,z) = node
 		distance = 1
@@ -255,16 +255,16 @@ class AStar(object):
 				distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
 			elif type(self.board.getElementAt(nx,ny,nz)) is Net:
 				distance += 3 #Add one distance for every adjacent net, this should space things out a bit
-			#Make higher paths more attractive
+			# Make higher paths more attractive
 			distance += (self.board.z_dim / (nz+1)) * self.board.z_dim
 
-			#Make paths on the middle layer more attractive
-			#distance += abs((self.board.z_dim/2)-nz)*10
+			# Make paths on the middle layer more attractive
+			# distance += abs((self.board.z_dim/2)-nz)*10
 
 		return distance
 
 
-	#Very optimistic heuristic, it returns the manhattan distance between the 2 nodes
+	# Very optimistic heuristic, it returns the manhattan distance between the 2 nodes
 	def manhattanCostEstimate(self, node1, node2):
 		(x,y,z) = node1
 		(x2,y2,z2) = node2
@@ -368,7 +368,7 @@ class Dijkstra(object):
 
 
 class DepthFirst(object):
-	"""docstring for ClassName"""
+	"""docstring for Depthfirst"""
 	def __init__(self, netlist, board):
 		super(DepthFirst, self).__init__()
 		self.netlist = netlist
@@ -396,7 +396,7 @@ class DepthFirst(object):
 			if currentNode not in discovered:
 				discovered.append(currentNode)
 
-				#sort netlist by distance (low - high)
+				# sort netlist by distance (low - high)
 				s = Sorter(currentNode.netlist, currentNode.board)
 				currentNode.netlist = s.sortNetlistByDistance()
 
@@ -426,7 +426,7 @@ class DepthFirst(object):
 		# no solution found
 		return False
 
-	#ieder element
+	# every element
 	def reconstructNetlist(self, currentNode):
 		netlist = []
 		lastNode = currentNode.previousNode
@@ -447,7 +447,7 @@ class BreadthFirst(object):
 		self.end = end
 		self.maze = maze
 
-		solutions = []
+		self.solutions = []
 
 	def solve(self):
 		queue = []
@@ -460,10 +460,10 @@ class BreadthFirst(object):
 			currentNode = queue.pop()
 
 			if currentNode not in visited:
-				# vind alle buren
+				# find/store all neighbours
 				neighbours = board.getOpenNeighbours
 
-				# voeg buren toe aan queue als je deze nog niet gecheckt hebt
+				# add neighbours to list in dict if not visited
 				for neighbour in neighbours:
 					if neighbour in visited:
 						continue
@@ -473,9 +473,10 @@ class BreadthFirst(object):
 					else:
 						dictPreviousNode[neighbour].append(currentNode)
 
+					# reconstructing path(s) when end is reached
 					if neighbour is end:
-						solutions.extend(self.reconstructPaths(dictPreviousNode, neighbour))
-						return solutions
+						self.solutions.extend(self.reconstructPaths(dictPreviousNode, neighbour))
+						return self.solutions
 
 					queue.insert(0, neighbour)
 
@@ -491,7 +492,7 @@ class BreadthFirst(object):
 		paths = [path]
 		while currentNode in cameFrom.keys():
 			if len(cameFrom[currentNode]) == 1:
-				
+
 			for previous in cameFrom[currentNode]:
 
 			currentNode = cameFrom[currentNode]
