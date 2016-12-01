@@ -454,6 +454,8 @@ class BreadthFirst(object):
 		queue = []
 		visited = []
 		dictPreviousNode = {}
+		counter = 0
+		maximum = -1
 
 		queue.insert(0, self.start)
 		while len(queue) != 0:
@@ -466,6 +468,9 @@ class BreadthFirst(object):
 				# If currentNode is adjacent to the end node, we are done!
 				if self.end in self.board.getAllNeighbours(x,y,z):
 					dictPreviousNode[self.end] = [currentNode]
+					maximum = counter * 2
+					
+				if counter > maximum and maximum > 0:
 					return self.reconstructPaths(dictPreviousNode, [self.end])
 
 
@@ -484,9 +489,9 @@ class BreadthFirst(object):
 					queue.insert(0, neighbour)
 
 				visited.append(currentNode)
-		print 'breadth first iterated', iterationcount, 'times'
-		# no solution found
-		return False
+				counter += 1
+		# lala
+		return self.reconstructPaths(dictPreviousNode, [self.end])
 
 	def reconstructPaths(self, cameFrom, path, paths = []):
 		lastNode = path[-1]
@@ -503,7 +508,7 @@ if __name__ == '__main__':
 	netlist = [(15, 8), (3, 15), (15, 5), (20, 19), (23, 4), (5, 7), (1, 0), (15, 21), (3, 5), (7, 13), (3, 23), (23, 8), (22, 13), (15, 17), (20, 10), (13, 18), (19, 2), (22, 11), (10, 4), (11, 24), (2, 20), (3, 4), (16, 9), (19, 5), (3, 0), (6, 14), (7, 9), (9, 13), (22, 16), (10, 7)]
 	board = runAlgorithm('astar', 0, netlist, 4, recursive=True)
 
-	net = board.nets[0]
+	net = board.nets[1]
 	board.removeNetPath(net)
 	print '\nremoved net from', net.start_gate, 'to', net.end_gate
 	(sx,sy,sz) = net.start_gate
@@ -517,3 +522,5 @@ if __name__ == '__main__':
 	print "I found", len(paths), "alternative paths"
 	print 'example 1:', paths[0]
 	print 'example 2:', paths[1]
+
+	print "length longest path:", len(max(paths, key = len))
