@@ -96,8 +96,9 @@ class Board(object):
         if type(net.path) is list:
             for (x,y,z) in net.path[1:-1]:
                 self.removeElementAt((x,y,z))
-            net.path = False
-        return True
+            net.path = []
+            return True
+        else: return False
 
     def copy(self):
         newBoard = type(self)(self.x_dim, self.y_dim, self.z_dim)
