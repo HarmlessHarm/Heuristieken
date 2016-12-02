@@ -521,10 +521,9 @@ class BreadthFirst(object):
 
 class GeneticOpt(object):
 	"""docstring for GeneticOpt"""
-	def __init__(self, base_board, netlist, max_generations, max_population):
+	def __init__(self, base_board, max_generations, max_population):
 		super(GeneticOpt, self).__init__()
 		self.base_board = base_board
-		self.netlist = netlist
 		self.max_generations = max_generations
 		self.max_population = max_population
 		self.base_score = self.base_board.getScore()[1]
@@ -534,16 +533,19 @@ class GeneticOpt(object):
 
 		pop = []
 		for i in range(self.max_population):
-			pop.append((self.base_board.copy(), self.base_score))
+			pop.append((copy.deepcopy(self.base_board), self.base_score))
 		return pop
 
 	def run(self):
 		for i in range(self.max_generations):
+			print "In Generation", i
 			newPop = self.iteration(self.population)
 			sortedPop = self.sortPop(newPop)
 			killedPop = self.killPop(sortedPop)
 			self.population = self.repopulate(killedPop)
-			print "POPULATION>>>>>>>>>>>>>>>>>>>>>>>",len(self.population)
+		print "Improved from", self.base_score, 'to', self.population[0][1]
+		oldV  = Visualizer(self.base_board)
+		oldV.start()
 		v = Visualizer(self.population[0][0])
 		v.start()
 		
@@ -551,23 +553,22 @@ class GeneticOpt(object):
 	def iteration(self, population):
 		newPop = []
 		for board, score in population:
-			rand_net = random.choice(self.netlist)
-			i = self.netlist.index(rand_net)
-			oldNet = board.nets[i]
-			# print 'oldnet', oldNet.net_id, oldNet.path
-			board.removeNetPath(oldNet)
-			print len(board.nets)
-			net = Net(rand_net[0], rand_net[1], i)
+			net = random.choice(board.nets)
+			oldPath = net.path
+			board.removeNetPath(net)
+			# net = Net(ran/d_net[0], net[1], i)
 			astar = AStar(board, net)
-			net = astar.createPath(board.gates[rand_net[0]], board.gates[rand_net[1]], bias=False)
+			net = astar.createPath(net.start_gate, net.end_gate, bias=False)
 			if not net.path:
 				print '\nFailed planning a better path for net', i, '!'
-				board.setNetPath(oldNet)
+				net.path = oldPath
+				board.setNetPath(net)
 			else:
 				board.setNetPath(net)
 				newScore = board.getScore()[1]
 				if newScore == score:
-					print "No improvement, cost:", score
+					pass
+					# print "No improvement, cost:", score
 				else:
 					print "Found new path: old score:", score, "new score:", newScore
 				newPop.append((board, newScore))
