@@ -99,16 +99,15 @@ class Board(object):
             net.path = False
         return True
 
-    # def copyThisBoard(self):
-    #     newBoard = type(self)(self.x_dim, self.y_dim, self.z_dim)
-    #     print "during deepcopy method type of new board is:", type(newBoard)
-    #     newArray = np.copy(self.board)
-    #     newGates = copy.deepcopy(self.gates)
-    #     newNets = copy.deepcopy(self.nets)
-    #     newBoard.board = newArray
-    #     newBoard.gates = newGates
-    #     newBoard.nets = newNets
-    #     return newBoard
+    def copy(self):
+        newBoard = type(self)(self.x_dim, self.y_dim, self.z_dim)
+        newArray = np.copy(self.board)
+        newGates = copy.deepcopy(self.gates)
+        newNets = copy.deepcopy(self.nets)
+        newBoard.board = newArray
+        newBoard.gates = newGates
+        newBoard.nets = newNets
+        return newBoard
 
         
 

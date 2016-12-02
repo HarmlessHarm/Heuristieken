@@ -4,7 +4,6 @@ import sys
 from Objects import *
 from Visualizer import *
 from Sorter import *
-from helpers import *
 import copy
 
 class EasyPath(object):
@@ -192,7 +191,7 @@ class AStar(object):
 		self.board = board	
 		self.net = net
 	
-	def createPath(self, start, goal):
+	def createPath(self, start, goal, bias=True):
 		(x,y,z) = self.board.getDimensions()
 		(x_start, y_start, z_start) = start
 		#For each node, whether it has been evaluated
@@ -235,7 +234,7 @@ class AStar(object):
 				if closedSet[nx][ny][nz]:
 					continue #neighbour is already evaluated
 
-				tentative_gscore = gScore[cx][cy][cz] + self.distance((nx,ny,nz))
+				tentative_gscore = gScore[cx][cy][cz] + self.distance((nx,ny,nz), bias)
 				if not (nx,ny,nz) in openSet:
 					openSet.append((nx,ny,nz))
 				elif tentative_gscore >= gScore[nx][ny][nz] >= 0:
@@ -248,20 +247,21 @@ class AStar(object):
 		return self.net
 
 	# Distance to node, based on its neighbours and the layer it is in
-	def distance(self, node):
+	def distance(self, node, bias):
 		(x,y,z) = node
 		distance = 1
-		for (nx,ny,nz) in self.board.getAllNeighbours(x,y,z):
-			if type(self.board.getElementAt(nx,ny,nz)) is Gate:
-				distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
-			elif type(self.board.getElementAt(nx,ny,nz)) is Net:
-				distance += 3 #Add one distance for every adjacent net, this should space things out a bit
+		if bias:
+			for (nx,ny,nz) in self.board.getAllNeighbours(x,y,z):
+				if type(self.board.getElementAt(nx,ny,nz)) is Gate:
+					distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
+				elif type(self.board.getElementAt(nx,ny,nz)) is Net:
+					distance += 3 #Add one distance for every adjacent net, this should space things out a bit
 
-			#Make higher paths more attractive
-			distance += pow(self.board.z_dim, 2) / (nz+1)
+				#Make higher paths more attractive
+				distance += pow(self.board.z_dim, 2) / (nz+1)
 
-			# Make paths on the middle layer more attractive
-			# distance += abs((self.board.z_dim/2)-nz)*10
+				# Make paths on the middle layer more attractive
+				# distance += abs((self.board.z_dim/2)-nz)*10
 
 		return distance
 
@@ -367,7 +367,6 @@ class Dijkstra(object):
 					bestCoord = neighbour
 
 		return bestCoord
-
 
 class DepthFirst(object):
 	"""docstring for Depthfirst"""
@@ -498,8 +497,45 @@ class BreadthFirst(object):
 			paths += [path]
 		return paths
 
+class GeneticOpt(object):
+	"""docstring for GeneticOpt"""
+	def __init__(self, base_board, netlist, max_generations, max_population):
+		super(GeneticOpt, self).__init__()
+		self.base_board = base_board
+		self.netlist = netlist
+		self.max_generations = max_generations
+		self.max_population = max_population
+		self.population = self.initPop()
+
+	def initPop(self):
+
+		pop = []
+		for i in range(self.max_population):
+			pop.append(self.base_board.copy())
+		return pop
+
+	def run(self):
+		for board in self.population:
+			rand_net = random.choice(self.netlist)
+			i = self.netlist.index(rand_net)
+			oldNet = board.nets[i]
+			print 'oldnet', oldNet.path
+			board.removeNetPath(oldNet)
+			net = Net(rand_net[0], rand_net[1], i)
+			astar = AStar(board, net)
+			net = astar.createPath(board.gates[rand_net[0]], board.gates[rand_net[1]], bias=False)
+			if not net.path:
+				print '\nFailed planning a better path for net', i, '!'
+				board.setNetPath(oldNet)
+			else:
+				board.setNetPath(net)
+
 
 if __name__ == '__main__':
+	from helpers import *
+
+
+
 	netlist = [(15, 8), (3, 15), (15, 5), (20, 19), (23, 4), (5, 7), (1, 0), (15, 21), (3, 5), (7, 13), (3, 23), (23, 8), (22, 13), (15, 17), (20, 10), (13, 18), (19, 2), (22, 11), (10, 4), (11, 24), (2, 20), (3, 4), (16, 9), (19, 5), (3, 0), (6, 14), (7, 9), (9, 13), (22, 16), (10, 7)]
 	board = runAlgorithm('astar', 0, netlist, 4, recursive=True)
 
