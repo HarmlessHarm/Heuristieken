@@ -191,7 +191,7 @@ class AStar(object):
 		self.board = board	
 		self.net = net
 	
-	def createPath(self, start, goal, bias=True):
+	def createPath(self, start, goal, bias='vertical'):
 		(x,y,z) = self.board.getDimensions()
 		(x_start, y_start, z_start) = start
 		#For each node, whether it has been evaluated
@@ -250,7 +250,7 @@ class AStar(object):
 	def distance(self, node, bias):
 		(x,y,z) = node
 		distance = 1
-		if bias:
+		if bias=='vertical':
 			for (nx,ny,nz) in self.board.getAllNeighbours(x,y,z):
 				if type(self.board.getElementAt(nx,ny,nz)) is Gate:
 					distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
@@ -259,9 +259,21 @@ class AStar(object):
 
 				#Make higher paths more attractive
 				distance += pow(self.board.z_dim, 2) / (nz+1)
+		
+		elif bias=='lateral':
+			for (nx,ny,nz) in self.board.getAllNeighbours(x,y,z):
+				if type(self.board.getElementAt(nx,ny,nz)) is Gate:
+					distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
+				elif type(self.board.getElementAt(nx,ny,nz)) is Net:
+					distance += 3 #Add one distance for every adjacent net, this should space things out a bit
 
-				# Make paths on the middle layer more attractive
-				# distance += abs((self.board.z_dim/2)-nz)*10
+				#Make paths that are higher and avoid the board center more attractive
+				xCenter = self.board.x_dim/2
+				yCenter = self.board.y_dim/2
+				distanceFromCenter = abs(nx-xCenter)+abs(ny-yCenter)
+				distance += min(xCenter, yCenter) / (distanceFromCenter+1)
+				distance += pow(self.board.z_dim, 2) / (nz+1)
+	
 
 		return distance
 
@@ -466,7 +478,7 @@ class BreadthFirst(object):
 
 				# If currentNode is adjacent to the end node, we are done!
 				if self.end in self.board.getAllNeighbours(x,y,z):
-					print 'end node found'
+					
 					if self.end not in dictPreviousNode.keys():
 						dictPreviousNode[self.end] = [currentNode]
 					else:
@@ -540,31 +552,43 @@ class GeneticOpt(object):
 			else:
 				board.setNetPath(net)
 
+class HillClimber(object):
+	"""docstring for hillClimber"""
+	def __init__(self, board):
+		super(HillClimber, self).__init__()
+		self.board = board
+
+	def climb(self, iterations=1):
+
+		for i in range(iterations):
+			print 'hillclimbing iteration:', i
+			random_net = random.choice(self.board.nets)
+			oldpath = copy.copy(random_net.path)
+			self.board.removeNetPath(random_net)
+			startGateID = self.board.getElementAt(random_net.start_gate[0],random_net.start_gate[1],random_net.start_gate[2]).gate_id
+			endGateID = self.board.getElementAt(random_net.end_gate[0],random_net.end_gate[1],random_net.end_gate[2]).gate_id
+			
+			breadthFirstAlgorithm = BreadthFirst(startGateID, endGateID, self.board)
+			possibleNewPaths = breadthFirstAlgorithm.solve()
+			print 'found', len(possibleNewPaths), 'paths'
+			newPath = random.choice(possibleNewPaths)
+			if len(newPath) <= len(oldpath):
+				print 'selectedpath is smaller than or equal to original path'
+				random_net.path = newPath
+				if not self.board.setNetPath(random_net):
+					print 'Failed placing path!'
+					break
+
+		return self.board
 
 if __name__ == '__main__':
 	from helpers import *
 
-
-
 	netlist = [(15, 8), (3, 15), (15, 5), (20, 19), (23, 4), (5, 7), (1, 0), (15, 21), (3, 5), (7, 13), (3, 23), (23, 8), (22, 13), (15, 17), (20, 10), (13, 18), (19, 2), (22, 11), (10, 4), (11, 24), (2, 20), (3, 4), (16, 9), (19, 5), (3, 0), (6, 14), (7, 9), (9, 13), (22, 16), (10, 7)]
 	board = runAlgorithm('astar', 0, netlist, 10, recursive=True)
-
-	net = board.nets[1]
-	board.removeNetPath(net)
-	
-	(sx,sy,sz) = net.start_gate
-	(ex,ey,ez) = net.end_gate
-
-	startgate = board.getElementAt(sx,sy,sz)
-	endgate = board.getElementAt(ex,ey,ez)
-	print '\nremoved net from', startgate.gate_id, 'to', endgate.gate_id
-	alg = BreadthFirst(startgate.gate_id, endgate.gate_id, board)
-	paths = alg.solve()
-	print "I found", len(paths), "paths"
-	print 'example 1:', paths[0]
-
-	v = Visualizer(board)
+	print '\nold board score:', board.getScore()
+	hc = HillClimber(board)
+	newBoard = hc.climb(20)
+	print 'new board score:', newBoard.getScore()
+	v = Visualizer(newBoard)
 	v.start()
-
-	print "length longest path:", len(max(paths, key = len))
-	print "length shortest path:", len(min(paths, key = len))
