@@ -527,22 +527,36 @@ class GeneticOpt(object):
 		self.netlist = netlist
 		self.max_generations = max_generations
 		self.max_population = max_population
+		self.base_score = self.base_board.getScore()[1]
 		self.population = self.initPop()
 
 	def initPop(self):
 
 		pop = []
 		for i in range(self.max_population):
-			pop.append(self.base_board.copy())
+			pop.append((self.base_board.copy(), self.base_score))
 		return pop
 
 	def run(self):
-		for board in self.population:
+		for i in range(self.max_generations):
+			newPop = self.iteration(self.population)
+			sortedPop = self.sortPop(newPop)
+			killedPop = self.killPop(sortedPop)
+			self.population = self.repopulate(killedPop)
+			print "POPULATION>>>>>>>>>>>>>>>>>>>>>>>",len(self.population)
+		v = Visualizer(self.population[0][0])
+		v.start()
+		
+
+	def iteration(self, population):
+		newPop = []
+		for board, score in population:
 			rand_net = random.choice(self.netlist)
 			i = self.netlist.index(rand_net)
 			oldNet = board.nets[i]
-			print 'oldnet', oldNet.path
+			# print 'oldnet', oldNet.net_id, oldNet.path
 			board.removeNetPath(oldNet)
+			print len(board.nets)
 			net = Net(rand_net[0], rand_net[1], i)
 			astar = AStar(board, net)
 			net = astar.createPath(board.gates[rand_net[0]], board.gates[rand_net[1]], bias=False)
@@ -551,13 +565,30 @@ class GeneticOpt(object):
 				board.setNetPath(oldNet)
 			else:
 				board.setNetPath(net)
+				newScore = board.getScore()[1]
+				if newScore == score:
+					print "No improvement, cost:", score
+				else:
+					print "Found new path: old score:", score, "new score:", newScore
+				newPop.append((board, newScore))
+		return newPop
+
+	def sortPop(self, pop):
+		return sorted(pop, key=lambda tup:tup[1])
+
+	def killPop(self, pop):
+		return pop[:len(pop)/2]
+
+	def repopulate(self, pop):
+		return copy.deepcopy(pop) + copy.deepcopy(pop)
+
 
 class HillClimber(object):
 	"""docstring for hillClimber"""
 	def __init__(self, board):
 		super(HillClimber, self).__init__()
 		self.board = board
-
+		
 	def climb(self, iterations=1):
 
 		for i in range(iterations):
