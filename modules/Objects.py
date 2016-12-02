@@ -93,7 +93,7 @@ class Board(object):
         return True
 
     def removeNetPath(self, net):
-        if type(net.path) is list:
+        if net.path != []:
             for (x,y,z) in net.path[1:-1]:
                 self.removeElementAt((x,y,z))
             net.path = []
@@ -104,15 +104,13 @@ class Board(object):
 
     def copy(self):
         newBoard = type(self)(self.x_dim, self.y_dim, self.z_dim)
-        newArray = np.copy(self.board)
+        newArray = np.deepcopy(self.board)
         newGates = copy.deepcopy(self.gates)
         newNets = copy.deepcopy(self.nets)
         newBoard.board = newArray
         newBoard.gates = newGates
         newBoard.nets = newNets
         return newBoard
-
-        
 
 
 class Gate(object):

@@ -34,7 +34,7 @@ def astar(netlist, alg_str):
 
 
 def genetic(board, netlist):
-	gen = GeneticOpt(board, netlist, 10, 10)
+	gen = GeneticOpt(board, 100, 1000)
 	# print gne.population
 	gen.run()
 
