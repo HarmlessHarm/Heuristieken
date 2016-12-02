@@ -43,9 +43,10 @@ class Visualizer(object):
 		colors = [cmap(i) for i in np.linspace(0, 1, len(nets))]
 		for net_id, color in zip(nets.keys(),colors):
 			net = nets[net_id]
-			for i, (x,y,z) in enumerate(net.path[:-1]):
-				(nx,ny,nz) = net.path[i+1]
-				ax.plot([x,nx],[y,ny],[z,nz], color=color, alpha=0.8)
+			if net.path != False:
+				for i, (x,y,z) in enumerate(net.path[:-1]):
+					(nx,ny,nz) = net.path[i+1]
+					ax.plot([x,nx],[y,ny],[z,nz], color=color, alpha=0.8)
 
 	
 if __name__ == '__main__':
