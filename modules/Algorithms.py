@@ -273,7 +273,7 @@ class AStar(object):
 				distanceFromCenter = abs(nx-xCenter)+abs(ny-yCenter)
 				distance += min(xCenter, yCenter) / (distanceFromCenter+1)
 				distance += pow(self.board.z_dim, 2) / (nz+1)
-	
+		
 
 		return distance
 
@@ -593,24 +593,35 @@ class HillClimber(object):
 	def __init__(self, board):
 		super(HillClimber, self).__init__()
 		self.board = board
-		
+
 	def climb(self, iterations=1):
 
 		for i in range(iterations):
+			
 			print 'hillclimbing iteration:', i
 			random_net = random.choice(self.board.nets)
 			oldpath = copy.copy(random_net.path)
+
 			self.board.removeNetPath(random_net)
+
+
 			startGateID = self.board.getElementAt(random_net.start_gate[0],random_net.start_gate[1],random_net.start_gate[2]).gate_id
 			endGateID = self.board.getElementAt(random_net.end_gate[0],random_net.end_gate[1],random_net.end_gate[2]).gate_id
 			
-			breadthFirstAlgorithm = BreadthFirst(startGateID, endGateID, self.board)
-			possibleNewPaths = breadthFirstAlgorithm.solve()
-			print 'found', len(possibleNewPaths), 'paths'
-			newPath = random.choice(possibleNewPaths)
-			if len(newPath) <= len(oldpath):
-				print 'selectedpath is smaller than or equal to original path'
-				random_net.path = newPath
+			#breadthFirstAlgorithm = BreadthFirst(startGateID, endGateID, self.board)
+			#possibleNewPaths = breadthFirstAlgorithm.solve()
+			#print 'found', len(possibleNewPaths), 'paths'
+			#newPath = random.choice(possibleNewPaths)
+
+			astar = AStar(self.board, random_net)
+			print random_net.path
+			random_net = astar.createPath(random_net.start_gate, random_net.end_gate, 'no_bias')
+			print random_net.path
+
+
+			if len(random_net.path) <= len(oldpath):
+				print 'selected path is smaller than or equal to original path'
+				random_net.path = random_net.path
 				if not self.board.setNetPath(random_net):
 					print 'Failed placing path!'
 					break
@@ -624,7 +635,7 @@ if __name__ == '__main__':
 	board = runAlgorithm('astar', 0, netlist, 10, recursive=True)
 	print '\nold board score:', board.getScore()
 	hc = HillClimber(board)
-	newBoard = hc.climb(20)
+	newBoard = hc.climb(50)
 	print 'new board score:', newBoard.getScore()
 	v = Visualizer(newBoard)
 	v.start()
