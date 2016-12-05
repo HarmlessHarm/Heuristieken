@@ -541,6 +541,7 @@ class GeneticOpt(object):
 			print "In Generation", i
 			newPop = self.iteration(self.population)
 			sortedPop = self.sortPop(newPop)
+			print self.population[0][1]
 			killedPop = self.killPop(sortedPop)
 			self.population = self.repopulate(killedPop)
 		print "Improved from", self.base_score, 'to', self.population[0][1]
@@ -552,7 +553,10 @@ class GeneticOpt(object):
 
 	def iteration(self, population):
 		newPop = []
-		for board, score in population:
+		for i, (board, score) in enumerate(population):
+			if i % 100 == 0:
+				print '.',
+				sys.stdout.flush()
 			net = random.choice(board.nets)
 			oldPath = net.path
 			board.removeNetPath(net)
@@ -566,11 +570,11 @@ class GeneticOpt(object):
 			else:
 				board.setNetPath(net)
 				newScore = board.getScore()[1]
-				if newScore == score:
-					pass
-					# print "No improvement, cost:", score
-				else:
-					print "Found new path: old score:", score, "new score:", newScore
+				# if newScore == score:
+				# 	pass
+				# 	# print "No improvement, cost:", score
+				# else:
+				# 	print "Found new path: old score:", score, "new score:", newScore
 				newPop.append((board, newScore))
 		return newPop
 
