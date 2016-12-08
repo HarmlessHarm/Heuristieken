@@ -4,7 +4,6 @@ import sys
 from Objects import *
 from Visualizer import *
 from Sorter import *
-from helpers import *
 import copy
 
 class EasyPath(object):
@@ -192,7 +191,7 @@ class AStar(object):
 		self.board = board	
 		self.net = net
 	
-	def createPath(self, start, goal):
+	def createPath(self, start, goal, bias='vertical'):
 		(x,y,z) = self.board.getDimensions()
 		(x_start, y_start, z_start) = start
 		#For each node, whether it has been evaluated
@@ -235,7 +234,7 @@ class AStar(object):
 				if closedSet[nx][ny][nz]:
 					continue #neighbour is already evaluated
 
-				tentative_gscore = gScore[cx][cy][cz] + self.distance((nx,ny,nz))
+				tentative_gscore = gScore[cx][cy][cz] + self.distance((nx,ny,nz), bias)
 				if not (nx,ny,nz) in openSet:
 					openSet.append((nx,ny,nz))
 				elif tentative_gscore >= gScore[nx][ny][nz] >= 0:
@@ -248,20 +247,33 @@ class AStar(object):
 		return self.net
 
 	# Distance to node, based on its neighbours and the layer it is in
-	def distance(self, node):
+	def distance(self, node, bias):
 		(x,y,z) = node
 		distance = 1
-		for (nx,ny,nz) in self.board.getAllNeighbours(x,y,z):
-			if type(self.board.getElementAt(nx,ny,nz)) is Gate:
-				distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
-			elif type(self.board.getElementAt(nx,ny,nz)) is Net:
-				distance += 3 #Add one distance for every adjacent net, this should space things out a bit
+		if bias=='vertical':
+			for (nx,ny,nz) in self.board.getAllNeighbours(x,y,z):
+				if type(self.board.getElementAt(nx,ny,nz)) is Gate:
+					distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
+				elif type(self.board.getElementAt(nx,ny,nz)) is Net:
+					distance += 3 #Add one distance for every adjacent net, this should space things out a bit
 
-			#Make higher paths more attractive
-			distance += pow(self.board.z_dim, 2) / (nz+1)
+				#Make higher paths more attractive
+				distance += pow(self.board.z_dim, 2) / (nz+1)
+		
+		elif bias=='lateral':
+			for (nx,ny,nz) in self.board.getAllNeighbours(x,y,z):
+				if type(self.board.getElementAt(nx,ny,nz)) is Gate:
+					distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
+				elif type(self.board.getElementAt(nx,ny,nz)) is Net:
+					distance += 3 #Add one distance for every adjacent net, this should space things out a bit
 
-			# Make paths on the middle layer more attractive
-			# distance += abs((self.board.z_dim/2)-nz)*10
+				#Make paths that are higher and avoid the board center more attractive
+				xCenter = self.board.x_dim/2
+				yCenter = self.board.y_dim/2
+				distanceFromCenter = abs(nx-xCenter)+abs(ny-yCenter)
+				distance += min(xCenter, yCenter) / (distanceFromCenter+1)
+				distance += pow(self.board.z_dim, 2) / (nz+1)
+		
 
 		return distance
 
@@ -368,7 +380,6 @@ class Dijkstra(object):
 
 		return bestCoord
 
-
 class DepthFirst(object):
 	"""docstring for Depthfirst"""
 	def __init__(self, netlist, board):
@@ -467,7 +478,7 @@ class BreadthFirst(object):
 
 				# If currentNode is adjacent to the end node, we are done!
 				if self.end in self.board.getAllNeighbours(x,y,z):
-					print 'end node found'
+					
 					if self.end not in dictPreviousNode.keys():
 						dictPreviousNode[self.end] = [currentNode]
 					else:
@@ -508,27 +519,123 @@ class BreadthFirst(object):
 			paths += [path]
 		return paths
 
+class GeneticOpt(object):
+	"""docstring for GeneticOpt"""
+	def __init__(self, base_board, max_generations, max_population):
+		super(GeneticOpt, self).__init__()
+		self.base_board = base_board
+		self.max_generations = max_generations
+		self.max_population = max_population
+		self.base_score = self.base_board.getScore()[1]
+		self.population = self.initPop()
+
+	def initPop(self):
+
+		pop = []
+		for i in range(self.max_population):
+			pop.append((copy.deepcopy(self.base_board), self.base_score))
+		return pop
+
+	def run(self):
+		for i in range(self.max_generations):
+			print "In Generation", i
+			newPop = self.iteration(self.population)
+			sortedPop = self.sortPop(newPop)
+			print self.population[0][1]
+			killedPop = self.killPop(sortedPop)
+			self.population = self.repopulate(killedPop)
+		print "Improved from", self.base_score, 'to', self.population[0][1]
+		oldV  = Visualizer(self.base_board)
+		oldV.start()
+		v = Visualizer(self.population[0][0])
+		v.start()
+		
+
+	def iteration(self, population):
+		newPop = []
+		for i, (board, score) in enumerate(population):
+			if i % 100 == 0:
+				print '.',
+				sys.stdout.flush()
+			net = random.choice(board.nets)
+			oldPath = net.path
+			board.removeNetPath(net)
+			# net = Net(ran/d_net[0], net[1], i)
+			astar = AStar(board, net)
+			net = astar.createPath(net.start_gate, net.end_gate, bias=False)
+			if not net.path:
+				print '\nFailed planning a better path for net', i, '!'
+				net.path = oldPath
+				board.setNetPath(net)
+			else:
+				board.setNetPath(net)
+				newScore = board.getScore()[1]
+				# if newScore == score:
+				# 	pass
+				# 	# print "No improvement, cost:", score
+				# else:
+				# 	print "Found new path: old score:", score, "new score:", newScore
+				newPop.append((board, newScore))
+		return newPop
+
+	def sortPop(self, pop):
+		return sorted(pop, key=lambda tup:tup[1])
+
+	def killPop(self, pop):
+		return pop[:len(pop)/2]
+
+	def repopulate(self, pop):
+		return copy.deepcopy(pop) + copy.deepcopy(pop)
+
+
+class HillClimber(object):
+	"""docstring for hillClimber"""
+	def __init__(self, board):
+		super(HillClimber, self).__init__()
+		self.board = board
+
+	def climb(self, iterations=1):
+
+		for i in range(iterations):
+			
+			print 'hillclimbing iteration:', i
+			random_net = random.choice(self.board.nets)
+			oldpath = copy.copy(random_net.path)
+
+			self.board.removeNetPath(random_net)
+
+
+			startGateID = self.board.getElementAt(random_net.start_gate[0],random_net.start_gate[1],random_net.start_gate[2]).gate_id
+			endGateID = self.board.getElementAt(random_net.end_gate[0],random_net.end_gate[1],random_net.end_gate[2]).gate_id
+			
+			#breadthFirstAlgorithm = BreadthFirst(startGateID, endGateID, self.board)
+			#possibleNewPaths = breadthFirstAlgorithm.solve()
+			#print 'found', len(possibleNewPaths), 'paths'
+			#newPath = random.choice(possibleNewPaths)
+
+			astar = AStar(self.board, random_net)
+			print random_net.path
+			random_net = astar.createPath(random_net.start_gate, random_net.end_gate, 'no_bias')
+			print random_net.path
+
+
+			if len(random_net.path) <= len(oldpath):
+				print 'selected path is smaller than or equal to original path'
+				random_net.path = random_net.path
+				if not self.board.setNetPath(random_net):
+					print 'Failed placing path!'
+					break
+
+		return self.board
 
 if __name__ == '__main__':
+	from helpers import *
+
 	netlist = [(15, 8), (3, 15), (15, 5), (20, 19), (23, 4), (5, 7), (1, 0), (15, 21), (3, 5), (7, 13), (3, 23), (23, 8), (22, 13), (15, 17), (20, 10), (13, 18), (19, 2), (22, 11), (10, 4), (11, 24), (2, 20), (3, 4), (16, 9), (19, 5), (3, 0), (6, 14), (7, 9), (9, 13), (22, 16), (10, 7)]
 	board = runAlgorithm('astar', 0, netlist, 10, recursive=True)
-
-	net = board.nets[1]
-	board.removeNetPath(net)
-	
-	(sx,sy,sz) = net.start_gate
-	(ex,ey,ez) = net.end_gate
-
-	startgate = board.getElementAt(sx,sy,sz)
-	endgate = board.getElementAt(ex,ey,ez)
-	print '\nremoved net from', startgate.gate_id, 'to', endgate.gate_id
-	alg = BreadthFirst(startgate.gate_id, endgate.gate_id, board)
-	paths = alg.solve()
-	print "I found", len(paths), "paths"
-	print 'example 1:', paths[0]
-
-	v = Visualizer(board)
+	print '\nold board score:', board.getScore()
+	hc = HillClimber(board)
+	newBoard = hc.climb(50)
+	print 'new board score:', newBoard.getScore()
+	v = Visualizer(newBoard)
 	v.start()
-
-	print "length longest path:", len(max(paths, key = len))
-	print "length shortest path:", len(min(paths, key = len))

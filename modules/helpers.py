@@ -48,43 +48,6 @@ def runAlgorithm(alg_str, board_number, netlist, maxLayers, recursive=True):
 		newNetlist = [netlist[i]] + netlist[:i] + netlist[i+1:]
 		board = runAlgorithm(alg_str, board_number, newNetlist, maxLayers)
 	return board
-	# for i, (start, end) in enumerate(netlist):
-	# 	#print "Planning path for net", i, "from gate ", start, board.gates[start], " to gate ", end, board.gates[end]
-	# 	net = None
-	# 	if alg_str=='astar':
-	# 		net = Net(board.gates[start], board.gates[end], i)
-	# 		alg = AStar(board, net)
-	# 		net = alg.createPath(net.start_gate, net.end_gate)
-	# 	elif alg_str=='dijkstra':
-	# 		net = Net(start, end, i)
-	# 		alg = Dijkstra(board, net)
-	# 		net = alg.createPath()
-	# 	elif alg_str=='simple':
-	# 		net = Net(start, end, i)
-	# 		alg = EasyPath(board)
-	# 		net = alg.createPath(net)
-	# 		board.removeNetPath(net)
-
-		# if failedCount > 0:
-			
-		# if not net.path:
-		# 	failedCount += 1
-		# 	if not suppress: print 'Failed planning a path for net', i, '!'
-		# 	if backtrack:
-	# 			newNetlist = [netlist[i]] + netlist[:i] + netlist[i+1:]
-	# 			# rand = random.randint(0, len(newNetlist) - 1)
-	# 			# newNetlist.insert(rand, netlist[i])
-	# 			# print "inserted", netlist[i], 'at position', rand
-	# 			# print newNetlist
-	# 			board = runAlgorithm(alg_str, b, newNetlist, backtrack=True)
-	# 		continue
-	# 	else:
-	# 		board.nets[net.net_id]=net
-	# 	#print 'about to set this planned path: ', plannedPath
-	# 	if not board.setNetPath(net):
-	# 		if not suppress: print 'Path is planned over an occupied position, something went seriously wrong!'
-	# 		break
-	# print 'Failed planning paths for: ', failedCount, 'nets'
 
 def checkNetlist(alg_str, board, netlist):
 	failedCount = 0
