@@ -79,6 +79,30 @@ class Board(object):
                 pathCount += 1
                 score += len(path)-1
         return pathCount, score
+
+    def getMinimumScore(self):
+        score = 0
+        for netID, netObject in self.nets:
+            # returns all net objects
+            startId = netObject.start_gate
+            endId = netObject.end_gate
+
+            startGate = self.gates[startId]
+            endGate = self.gates[endId]
+
+            # get x, y, z coordinates both gates
+            startCor = startGate.getCoordinates()
+            endCor = endGate.getCoordinates()
+
+            score += abs(startCor[0] - endCor[0]) + abs(endCor[1] - endCor[1])
+
+        return score
+
+    def getRelativeScore(self):
+        minimum = getMinimumScore()
+        current = getScore()
+        # check how many times current score fits into min. score
+        return current[1] / (minimum + 0.0)
         
     def printBoard(self):
         for z in range(self.z_dim):
