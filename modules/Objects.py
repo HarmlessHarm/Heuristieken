@@ -102,7 +102,7 @@ class Board(object):
         minimum = getMinimumScore()
         current = getScore()
         # check how many times current score fits into min. score
-        return current[1] / (minimum + 0.0)
+        return current[1] / (minimum + 0.0)     
         
     def printBoard(self):
         for z in range(self.z_dim):
