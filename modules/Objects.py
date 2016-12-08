@@ -75,7 +75,7 @@ class Board(object):
         pathCount = 0
         for i in self.nets:
             path = self.nets[i].path
-            if type(path) is list:
+            if type(path) is list and path != []:
                 pathCount += 1
                 score += len(path)-1
         return pathCount, score

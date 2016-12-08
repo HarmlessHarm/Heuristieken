@@ -186,14 +186,17 @@ class EasyPath(object):
 
 class AStar(object):
 	"""docstring for AStar"""
-	def __init__(self, board, net):
+	def __init__(self, board, net, bias='vertical'):
 		super(AStar, self).__init__()
 		self.board = board	
 		self.net = net
 	
-	def createPath(self, start, goal, bias='vertical'):
+	def createPath(self):
 		(x,y,z) = self.board.getDimensions()
+		start = self.board.gates[self.net.start_gate].getCoordinates()
 		(x_start, y_start, z_start) = start
+		end = self.board.gates[self.net.end_gate].getCoordinates()
+		(x_end, y_end, z_end) = end
 		#For each node, whether it has been evaluated
 		closedSet = np.zeros((x,y,z), dtype=bool)
 
@@ -243,7 +246,7 @@ class AStar(object):
 				cameFrom[(nx,ny,nz)] = (cx,cy,cz)
 				gScore[nx][ny][nz] = tentative_gscore
 				fScore[nx][ny][nz] = gScore[nx][ny][nz] + self.manhattanCostEstimate((nx,ny,nz),goal)
-		self.net.path = False
+		self.net.path = []
 		return self.net
 
 	# Distance to node, based on its neighbours and the layer it is in
@@ -454,40 +457,41 @@ class DepthFirst(object):
 
 class BreadthFirst(object):
 	"""docstring for BreadthFirst"""
-	def __init__(self, start, end, board):
+	def __init__(self, net, board):
 		super(BreadthFirst, self).__init__()
-		self.start = board.gates[start]
-		self.end = board.gates[end]
+		self.start = board.gates[net.start_gate]
+		self.end = board.gates[net.end_gate]
 		self.board = board
 
 
-	def solve(self):
+	#Creates at least all shortest paths, and maybe more. It runs for 10 percent more iterations than needed
+	# so that it finds some slightly longer paths as well.
+	def createPaths(self):
 		queue = []
 		visited = []
 		dictPreviousNode = {}
 		counter = 0
 		maximum = -1
 
-		queue.insert(0, self.start)
+		queue.insert(0, self.start.getCoordinates())
 		while len(queue) != 0:
 			currentNode = queue.pop()
 
 			if currentNode not in visited:
 				# vind alle buren
-				(x,y,z) = currentNode
+				(x,y,z) = currentNode.getCoordinates()
 
-				# If currentNode is adjacent to the end node, we are done!
-				if self.end in self.board.getAllNeighbours(x,y,z):
-					
+				# If currentNode is adjacent to the end node, we are almost done!
+				if self.end.getCoordinates() in self.board.getAllNeighbours(x,y,z):
 					if self.end not in dictPreviousNode.keys():
 						dictPreviousNode[self.end] = [currentNode]
 					else:
 						dictPreviousNode[self.end].append(currentNode)
 					#return self.reconstructPaths(dictPreviousNode, [self.end])
-					#maximum = counter * 3
+					maximum = math.floor(counter * 1.1)
 					
-				#if counter > maximum and maximum > 0:
-				#	return self.reconstructPaths(dictPreviousNode, [self.end])
+				if counter > maximum and maximum > 0:
+					return self.reconstructPaths(dictPreviousNode, [self.end.getCoordinates()])
 
 
 				neighbours = self.board.getOpenNeighbours(x,y,z)
@@ -507,7 +511,8 @@ class BreadthFirst(object):
 				visited.append(currentNode)
 				counter += 1
 		# lala
-		return self.reconstructPaths(dictPreviousNode, [self.end])
+		# return self.reconstructPaths(dictPreviousNode, [self.end])
+		return []
 
 	def reconstructPaths(self, cameFrom, path, paths = []):
 		lastNode = path[-1]
@@ -516,6 +521,7 @@ class BreadthFirst(object):
 				new_path = path + [nextNode]
 				paths = self.reconstructPaths(cameFrom, new_path, paths)
 		else:
+			path = list(reversed(path))
 			paths += [path]
 		return paths
 
@@ -594,36 +600,47 @@ class HillClimber(object):
 		super(HillClimber, self).__init__()
 		self.board = board
 
-	def climb(self, iterations=1):
+	def solve(self, iterations=1):
 
 		for i in range(iterations):
 			
 			print 'hillclimbing iteration:', i
 			random_net = random.choice(self.board.nets)
-			oldpath = copy.copy(random_net.path)
-
-			self.board.removeNetPath(random_net)
-
+			print 'changing net:', random_net.net_id
+			print 'With current path:', random_net.path
+			oldpath = copy.deepcopy(random_net.path)
 
 			startGateID = self.board.getElementAt(random_net.start_gate[0],random_net.start_gate[1],random_net.start_gate[2]).gate_id
 			endGateID = self.board.getElementAt(random_net.end_gate[0],random_net.end_gate[1],random_net.end_gate[2]).gate_id
 			
-			#breadthFirstAlgorithm = BreadthFirst(startGateID, endGateID, self.board)
-			#possibleNewPaths = breadthFirstAlgorithm.solve()
-			#print 'found', len(possibleNewPaths), 'paths'
-			#newPath = random.choice(possibleNewPaths)
+			if not self.board.removeNetPath(random_net):
+				print 'Failed removing old path!'
 
-			astar = AStar(self.board, random_net)
-			print random_net.path
-			random_net = astar.createPath(random_net.start_gate, random_net.end_gate, 'no_bias')
-			print random_net.path
+			breadthFirstAlgorithm = BreadthFirst(startGateID, endGateID, self.board)
+			possibleNewPaths = breadthFirstAlgorithm.solve()
+
+			print 'found', len(possibleNewPaths), 'paths'
+			if len(possibleNewPaths) < 1:
+				continue
+			
+			random_net.path = random.choice(possibleNewPaths)
+			print 'New path is:', random_net.path
+
+			# astar = AStar(self.board, random_net)
+			# print random_net.path
+			# random_net = astar.createPath(random_net.start_gate, random_net.end_gate, 'no_bias')
+			# print random_net.path
 
 
 			if len(random_net.path) <= len(oldpath):
 				print 'selected path is smaller than or equal to original path'
-				random_net.path = random_net.path
 				if not self.board.setNetPath(random_net):
 					print 'Failed placing path!'
+					break
+			else:
+				random_net.path = oldpath
+				if not self.board.setNetPath(random_net):
+					print 'Failed restoring old path!'
 					break
 
 		return self.board
@@ -632,10 +649,18 @@ if __name__ == '__main__':
 	from helpers import *
 
 	netlist = [(15, 8), (3, 15), (15, 5), (20, 19), (23, 4), (5, 7), (1, 0), (15, 21), (3, 5), (7, 13), (3, 23), (23, 8), (22, 13), (15, 17), (20, 10), (13, 18), (19, 2), (22, 11), (10, 4), (11, 24), (2, 20), (3, 4), (16, 9), (19, 5), (3, 0), (6, 14), (7, 9), (9, 13), (22, 16), (10, 7)]
-	board = runAlgorithm('astar', 0, netlist, 10, recursive=True)
+	board = runAlgorithm('astar', 0, netlist, 5, recursive=True)
 	print '\nold board score:', board.getScore()
+	# net = board.nets[0]
+	# print 'Planning new path from',net.start_gate, 'to', net.end_gate
+	# print 'old path', net.path
+	# board.removeNetPath(net)
+	# bfa = BreadthFirst(board.getElementAt(net.start_gate[0],net.start_gate[1],net.start_gate[2]).gate_id, board.getElementAt(net.end_gate[0],net.end_gate[1],net.end_gate[2]).gate_id, board)
+	# paths = bfa.solve()
+	# print 'found', len(paths), 'possible paths'
+	# print 'The first is:', paths[0]	
 	hc = HillClimber(board)
-	newBoard = hc.climb(50)
+	newBoard = hc.solve(5)
 	print 'new board score:', newBoard.getScore()
-	v = Visualizer(newBoard)
-	v.start()
+	# v = Visualizer(newBoard)
+	# v.start()

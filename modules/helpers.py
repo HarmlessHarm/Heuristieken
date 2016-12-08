@@ -65,7 +65,7 @@ def checkPath(alg_str, board, start, end, i):
 	if alg_str=='astar':
 		net = Net(board.gates[start], board.gates[end], i)
 		alg = AStar(board, net)
-		net = alg.createPath(net.start_gate, net.end_gate)
+		net = alg.createPath()
 	elif alg_str=='dijkstra':
 		net = Net(start, end, i)
 		alg = Dijkstra(board, net)
