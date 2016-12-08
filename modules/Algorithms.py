@@ -555,7 +555,7 @@ class GeneticOpt(object):
 	def iteration(self, population):
 		newPop = []
 		for i, (board, score) in enumerate(population):
-			if i % 100 == 0:
+			if i % 10 == 0:
 				print '.',
 				sys.stdout.flush()
 			net = random.choice(board.nets)

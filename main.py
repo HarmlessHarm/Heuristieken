@@ -51,16 +51,16 @@ if __name__ == '__main__':
 
 	print 'Running', alg, 'on board', b_id, 'with netlist', n_id, 'and maximum number of layers:', l
 	board = runAlgorithm(alg, b_id, netlist, l, args.recursion)
+	print 'Solved', board.getScore()[0], 'nets with a total path length of:', board.getScore()[1]
 	if args.genetic:
 		gen = GeneticOpt(board, gen, pop)
 		genBoard = gen.run()
 
-	print '\nSolved', board.getScore()[0], 'nets with a total path length of:', board.getScore()[1]
 	if args.visualization:
 		v = Visualizer(board)
 		v.start()
 
-		vg = Visualizer(board)
+		vg = Visualizer(genBoard)
 		vg.start()
 
 

@@ -103,6 +103,7 @@ def runAlgorithm(alg_str, board_number, netlist, maxLayers, recursive=True):
 		newNetlist = [netlist[i]] + netlist[:i] + netlist[i+1:]
 		board = runAlgorithm(alg_str, board_number, newNetlist, maxLayers)
 	dumpBoard(board, alg_str)
+	print '\n'
 	return board
 
 def checkNetlist(alg_str, board, netlist):
@@ -118,7 +119,6 @@ def checkPath(alg_str, board, start, end, i):
 	print '.',
 	sys.stdout.flush()
 	# print 'hoi?'
-	print 'startGate:', start
 	if alg_str=='astar':
 		net = Net(board.gates[start], board.gates[end], i)
 		alg = AStar(board, net)
