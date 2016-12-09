@@ -1,6 +1,6 @@
 from modules import *
 import matplotlib.pyplot as plt
-
+import copy
 
 def randomSamples(iterations, bi, ni):
 	netlists = readNetlists()
@@ -21,8 +21,9 @@ def randomSamples(iterations, bi, ni):
 				wf.write(str(score)+ " : " + str(s.netlist) + "\n")
 			l.append(score)
 
-def astar(netlist, alg_str):
-	board = runAlgorithm(alg_str, 1, netlist, 10, recursive=True)
+def astar(alg_str, boardN, netN):
+	netlist = readNetlists()[0]
+	board = runAlgorithm(alg_str, boardN, netlist, 10, recursive=True)
 	try:
 		print board.getScore()
 	except e:
@@ -33,16 +34,27 @@ def astar(netlist, alg_str):
 	return board
 
 
-def genetic(board, netlist):
-	gen = GeneticOpt(board, 100, 1000)
+def genetic(board, gens, pop):
+	gen = GeneticOpt(board, gens, pop)
 	# print gne.population
-	gen.run()
+	genBoard = gen.run()
+	dumpBoard(genBoard, 'astar', genetic=True, gen=gens, pop=pop)
+	return genBoard
 
 
-netlist = [(15, 8), (3, 15), (15, 5), (20, 19), (23, 4), (5, 7), (1, 0), (15, 21), (3, 5), (7, 13), (3, 23), (23, 8), (22, 13), (15, 17), (20, 10), (13, 18), (19, 2), (22, 11), (10, 4), (11, 24), (2, 20), (3, 4), (16, 9), (19, 5), (3, 0), (6, 14), (7, 9), (9, 13), (22, 16), (10, 7)]
-netlist2 = [(12, 20), (23, 20), (6, 9), (15, 10), (12, 13), (8, 18), (1, 22), (10, 20), (4, 3), (10, 5), (17, 11), (1, 21), (22, 8), (22, 10), (19, 8), (13, 19), (10, 4), (9, 23), (22, 18), (16, 21), (4, 0), (18, 21), (5, 17), (8, 23), (18, 13), (13, 11), (11, 7), (14, 7), (14, 6), (14, 1), (24, 12), (11, 15), (2, 5), (11, 12), (0, 15), (14, 5), (15, 4), (19, 9), (3, 0), (15, 13)]
-lastNet2 = [(12, 13), (14, 7), (13, 11), (10, 5), (14, 6), (19, 8), (14, 1), (22, 10), (0, 15), (10, 4), (15, 4), (5, 17), (18, 13), (15, 13), (2, 5), (14, 5), (11, 12), (12, 20), (23, 20), (6, 9), (15, 10), (8, 18), (1, 22), (10, 20), (4, 3), (17, 11), (1, 21), (22, 8), (13, 19), (9, 23), (22, 18), (16, 21), (4, 0), (18, 21), (8, 23), (11, 7), (24, 12), (11, 15), (19, 9), (3, 0)]
-netlist = readNetlists()[5]
-# randomSamples(500, 0, 0)
-board = astar(netlist, 'astar')
-genetic(board, netlist)
+
+board = findBoard('astar', 1, 1, 10)
+if not board:
+	board = astar('astar', 0, 0)
+# genBoard = findBoard('astar' , 1, 1, 10, genetic=True, gen=100,pop=100)
+# if not genBoard:
+	# nb = copy.deepcopy(board)
+genBoard = genetic(board, 100, 50)
+	# print genBoard
+
+v = Visualizer(board)
+v.start()
+
+vg = Visualizer(genBoard)
+vg.start()
+

@@ -3,6 +3,11 @@ import numpy as np
 from Objects import *
 from Algorithms import *
 import sys
+# Try using cpickle lib for efficiency
+try:
+	import cpickle as pickle
+except:
+	import pickle
 
 def readNetlists():
 
@@ -36,8 +41,59 @@ def createBoard(i, layers):
 	    	g = Gate(gate['id']-1, gate['x'], gate['y'])
 	    	b.gates[g.gate_id] = (g.x, g.y, g.z)
 	        b.setElementAt(g, g.x, g.y)
-
 	    return b
+
+def dumpBoard(board, alg_str, fileName=None, genetic=False, gen=None, pop=None):
+	netLen = len(board.nets)
+	if board.y_dim == 13:
+		boardN = 1
+		if netLen == 30:
+			netN = 1
+		elif netLen == 40:
+			netN = 2
+		elif netLen == 50:
+			netN = 3
+		else:
+			netN = 'x'
+	elif board.y_dim == 17:
+		boardN = 2
+		if netLen == 50:
+			netN = 4
+		elif netLen == 60:
+			netN == 5
+		elif netLen == 70:
+			netN = 6
+		else:
+			netN = 'x'
+	else:
+		boardN = 'x'
+	d = './boards/'
+	if fileName == None:
+		fileName = 'board_' + str(alg_str) \
+					+ '_b' + str(boardN) + '_n' + str(netN) \
+					+ '_l' + str(board.z_dim) + '.pkl'
+		if genetic:
+			fileName = 'genetic_g'+str(gen)+'_p'+str(pop)+ '_' + fileName
+
+	pickle.dump(board, open(d+fileName, 'wb'))
+	print "Board stored in", d+fileName
+
+def readBoard(fileName):
+	d = './boards/'
+	fileName = d + fileName
+	board = pickle.load(open(fileName, 'rb'))
+	return board
+
+def findBoard(alg_str, boardN, netN, layerN, fileName=None, genetic=False, gen=None, pop=None):
+	if fileName == None:
+		fileName = 'board_' + str(alg_str) + '_b' + str(boardN) + '_n' + str(netN) + '_l' + str(layerN) + '.pkl'
+		if genetic:
+			fileName = 'genetic_g'+str(gen)+'_p'+str(pop)+ '_'+ fileName
+	try:
+		board = readBoard(fileName)
+		return board
+	except:
+		return False
 
 def runAlgorithm(alg_str, board_number, netlist, maxLayers, recursive=True):
 	failedCount = 0
@@ -47,21 +103,22 @@ def runAlgorithm(alg_str, board_number, netlist, maxLayers, recursive=True):
 	if not i is True and recursive:
 		newNetlist = [netlist[i]] + netlist[:i] + netlist[i+1:]
 		board = runAlgorithm(alg_str, board_number, newNetlist, maxLayers)
+	# dumpBoard(board, alg_str)
 	return board
 
 def checkNetlist(alg_str, board, netlist):
 	failedCount = 0
 	for i, (start, end) in enumerate(netlist):
+		if i % round(len(netlist) / 20) == 0:
+			print '.',
+			sys.stdout.flush()
 		if not checkPath(alg_str, board, start, end, i):
-			print netlist
+			# print netlist
 			return i
 	return True
 
 def checkPath(alg_str, board, start, end, i):
 	net = None
-	print '.',
-	sys.stdout.flush()
-	# print 'hoi?'
 	if alg_str=='astar':
 		net = Net(board.gates[start], board.gates[end], i)
 		alg = AStar(board, net)

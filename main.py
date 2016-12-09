@@ -13,6 +13,9 @@ if __name__ == '__main__':
 	parser.add_argument('-v', '--visualization', action='store_true', help="3d visualization, default is off")
 	parser.add_argument('-r', '--recursion', action='store_true', help="Enable recursion on net order, default is off")
 	parser.add_argument('-l', '--layers', type=int, help="Specify the maximum number of layers on the board, default is 10")
+	parser.add_argument('-G', '--genetic', action='store_true', help="Specify if genetic optimization is wanted")
+	parser.add_argument('-g', '--generations', type=int, help='specify how many generation')
+	parser.add_argument('-p', '--population', type=int, help='specify how big the population should be')
 	args = parser.parse_args()
 
 	netlists = readNetlists()
@@ -37,14 +40,30 @@ if __name__ == '__main__':
 		alg = args.algorithm
 	else:
 		alg = 'astar'
+
+	if args.genetic:
+		if args.generations == None or args.population == None:
+			print "Specify how many generations and how large your population should be used (-g -p)"
+		else:
+			gen = args.generations
+			pop = args.population
 	# netlist = [(24, 12), (18, 13), (2, 5), (0, 15), (1, 21), (22, 10), (11, 12), (15, 13), (15, 10), (22, 18), (3, 0), (13, 19), (22, 8), (15, 4), (16, 21), (8, 18), (12, 20), (5, 17), (10, 4), (14, 1), (12, 13), (8, 23), (4, 0), (4, 3), (10, 20), (11, 7), (10, 5), (18, 21), (9, 23), (19, 9), (11, 15), (17, 11), (19, 8), (14, 6), (23, 20), (14, 5), (1, 22), (6, 9), (13, 11), (14, 7)]
 
 	print 'Running', alg, 'on board', b_id, 'with netlist', n_id, 'and maximum number of layers:', l
 	board = runAlgorithm(alg, b_id, netlist, l, args.recursion)
-	print '\nSolved', board.getScore()[0], 'nets with a total path length of:', board.getScore()[1]
+	print '\n'
+	dumpBoard(board, alg)
+	print 'Solved', board.getScore()[0], 'nets with a total path length of:', board.getScore()[1]
+	if args.genetic:
+		gen = GeneticOpt(board, gen, pop)
+		genBoard = gen.run()
+
 	if args.visualization:
 		v = Visualizer(board)
 		v.start()
+
+		vg = Visualizer(genBoard)
+		vg.start()
 
 
 	

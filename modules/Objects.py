@@ -3,9 +3,18 @@ import copy
 import numpy as np
 
 class Board(object):
-    """docstring for Board"""
+    """
+    Board object in which all data is stored
+    """
 
     def __init__(self, x_dim, y_dim, z_dim=1):
+        """
+        Creates a Board object with certain dimensions and initializes a 3d 
+        numpy array which represents the circuit.
+        :param x_dim: Width of the circuit
+        :param y_dim: Height of the circuit
+        :param z_dim: Maximum depth of the circuit
+        """
         super(Board, self).__init__()
         self.x_dim = x_dim
         self.y_dim = y_dim
