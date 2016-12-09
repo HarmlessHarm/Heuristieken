@@ -237,7 +237,13 @@ class Board(object):
 
 class Gate(object):
 
-    """ Docstring for Gate """
+    """ 
+    Gate object with coordinates and identifier
+
+    Attributes:
+        gate_id (int): Unique identifier of the gate.
+        x, y, z (int): Coordinates of the gate.
+    """
 
     def __init__(self, gate_id, x, y, z=0):
         super(Gate, self).__init__()
@@ -246,13 +252,23 @@ class Gate(object):
         self.y = y
         self.z = z
 
-    def getCoordinates(self, coordinates):
-        return (x, y, z)
+    def getCoordinates(self):
+        """
+        Returns coordinates of gate
+        """
+        return (self.x, self.y, self.z)
 
 
 class Net(object):
 
-    """ Docstring for Net """
+    """
+    Net object with identifier, start and end gate identifiers ano ffd the path.
+
+    Attributes:
+        start_gate, end_gate (int): Gate identifiers of the start and end gates.
+        net_id (int): Unique Net identifier.
+        path (tuple list): List of coordinates that make up the path of a net.
+    """
 
     def __init__(self, start_gate, end_gate, net_id):
         super(Net, self).__init__()
@@ -262,13 +278,25 @@ class Net(object):
         self.path = []
 
     def addPos(self, xyz):
+        """
+        Adds a new coordinate to the path attribute
+        Args:
+            xyz (int tuple): New coordinate to add to path
+        """
         x, y, z = xyz
         self.path.append((x, y, z))
 
 
 class TreeNode(object):
 
-    """docstring for TreeNode"""
+    """
+    Node in search tree
+
+    Attributes:
+        board (Board): Board object in node
+        previousNode (TreeNode): Parent of the TreeNode object
+        netlist (tuple list): Netlist in node
+    """
 
     def __init__(self, board, previousNode, netlist):
         super(TreeNode, self).__init__()
