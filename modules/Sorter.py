@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import random, pprint
 import numpy as np
 import matplotlib.pyplot as plt

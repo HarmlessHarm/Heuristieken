@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pprint
 import copy
 import numpy as np
@@ -11,9 +12,13 @@ class Board(object):
         """
         Creates a Board object with certain dimensions and initializes a 3d 
         numpy array which represents the circuit.
-        :param x_dim: Width of the circuit
-        :param y_dim: Height of the circuit
-        :param z_dim: Maximum depth of the circuit
+        Also contains a dictionary for where all gates and nets are stored with
+        their id as key
+
+        Args:
+            x_dim: Width of the circuit
+            y_dim: Height of the circuit
+            z_dim: Maximum depth of the circuit
         """
         super(Board, self).__init__()
         self.x_dim = x_dim
@@ -24,6 +29,9 @@ class Board(object):
         self.nets = {}
 
     def getElementAt(self, x, y, z):
+        """
+        
+        """
         if  0 <= x < self.x_dim and 0 <= y < self.y_dim and 0 <= z < self.z_dim:
             return self.board[x, y, z]
         return False
