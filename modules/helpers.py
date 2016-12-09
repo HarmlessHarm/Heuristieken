@@ -39,7 +39,7 @@ def createBoard(i, layers):
 	    b = Board(width, height, layers)
 	    for gate in board['gates']:
 	    	g = Gate(gate['id']-1, gate['x'], gate['y'])
-	    	b.gates[g.gate_id] = g.gate_id
+	    	b.gates[g.gate_id] = (g.x, g.y, g.z)
 	        b.setElementAt(g, g.x, g.y)
 	    return b
 
