@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from modules import *
 import argparse
 import numpy as np
@@ -43,10 +44,13 @@ if __name__ == '__main__':
 		alg = 'astar'
 
 	if args.genetic:
-		if args.generations == None or args.population == None:
-			print "Specify how many generations and how large your population should be used (-g -p)"
+		if args.generations == None:
+			gen = 50
 		else:
 			gen = args.generations
+		if args.population == None:
+			pop = 100
+		else:
 			pop = args.population
 	# netlist = [(24, 12), (18, 13), (2, 5), (0, 15), (1, 21), (22, 10), (11, 12), (15, 13), (15, 10), (22, 18), (3, 0), (13, 19), (22, 8), (15, 4), (16, 21), (8, 18), (12, 20), (5, 17), (10, 4), (14, 1), (12, 13), (8, 23), (4, 0), (4, 3), (10, 20), (11, 7), (10, 5), (18, 21), (9, 23), (19, 9), (11, 15), (17, 11), (19, 8), (14, 6), (23, 20), (14, 5), (1, 22), (6, 9), (13, 11), (14, 7)]
 

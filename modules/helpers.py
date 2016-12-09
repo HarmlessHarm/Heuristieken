@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json, ast, os
 import numpy as np
 from Objects import *

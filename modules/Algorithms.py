@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 from random import shuffle
 import sys
@@ -664,9 +665,10 @@ class GeneticOpt(object):
 			oldPath = net.path
 			board.removeNetPath(net)
 			# net = Net(ran/d_net[0], net[1], i)
-			astar = AStar(board, net)
-			net = astar.createPath(net.start_gate, net.end_gate, bias=False)
-			if not net.path:
+			astar = AStar(board, net, bias=False)
+			path = astar.createPath()
+			net.path = path
+			if len(net.path) == 0:
 				print '\nFailed planning a better path for net', i, '!'
 				net.path = oldPath
 				board.setNetPath(net)

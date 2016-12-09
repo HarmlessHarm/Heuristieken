@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from Objects import *
 from Algorithms import *
 from Visualizer import *
