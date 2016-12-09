@@ -76,6 +76,7 @@ def dumpBoard(board, alg_str, fileName=None, genetic=False, gen=None, pop=None):
 			fileName = 'genetic_g'+str(gen)+'_p'+str(pop)+ '_' + fileName
 
 	pickle.dump(board, open(d+fileName, 'wb'))
+	print "Board stored in", d+fileName
 
 def readBoard(fileName):
 	d = './boards/'
@@ -102,23 +103,22 @@ def runAlgorithm(alg_str, board_number, netlist, maxLayers, recursive=True):
 	if not i is True and recursive:
 		newNetlist = [netlist[i]] + netlist[:i] + netlist[i+1:]
 		board = runAlgorithm(alg_str, board_number, newNetlist, maxLayers)
-	dumpBoard(board, alg_str)
-	print '\n'
+	# dumpBoard(board, alg_str)
 	return board
 
 def checkNetlist(alg_str, board, netlist):
 	failedCount = 0
 	for i, (start, end) in enumerate(netlist):
+		if i % round(len(netlist) / 20) == 0:
+			print '.',
+			sys.stdout.flush()
 		if not checkPath(alg_str, board, start, end, i):
-			print netlist
+			# print netlist
 			return i
 	return True
 
 def checkPath(alg_str, board, start, end, i):
 	net = None
-	print '.',
-	sys.stdout.flush()
-	# print 'hoi?'
 	if alg_str=='astar':
 		net = Net(board.gates[start], board.gates[end], i)
 		alg = AStar(board, net)

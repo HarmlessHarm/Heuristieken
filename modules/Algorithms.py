@@ -545,10 +545,6 @@ class GeneticOpt(object):
 			killedPop = self.killPop(sortedPop)
 			self.population = self.repopulate(killedPop)
 		print "Improved from", self.base_score, 'to', self.population[0][1]
-		# oldV  = Visualizer(self.base_board)
-		# oldV.start()
-		# v = Visualizer(self.population[0][0])
-		# v.start()
 		return self.population[0][0]
 		
 
