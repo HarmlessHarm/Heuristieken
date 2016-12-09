@@ -16,9 +16,9 @@ class Board(object):
         their id as key
 
         Args:
-            x_dim: Width of the circuit
-            y_dim: Height of the circuit
-            z_dim: Maximum depth of the circuit
+            x_dim (int): Width of the circuit
+            y_dim (int): Height of the circuit
+            z_dim (int): Maximum depth of the circuit
         """
         super(Board, self).__init__()
         self.x_dim = x_dim
@@ -30,7 +30,10 @@ class Board(object):
 
     def getElementAt(self, x, y, z):
         """
-        
+        Returns the object that is positioned at a certain position on the board
+
+        Args:
+            x (int):
         """
         if  0 <= x < self.x_dim and 0 <= y < self.y_dim and 0 <= z < self.z_dim:
             return self.board[x, y, z]
