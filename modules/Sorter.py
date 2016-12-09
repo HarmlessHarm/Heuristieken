@@ -23,10 +23,10 @@ class Sorter(object):
 	def cmpByDistance(self, a, b):
 		a1, a2 = a
 		b1, b2 = b
-		(xa1,ya1,za1) = self.board.gates[a1]
-		(xa2,ya2,za2) = self.board.gates[a2]
-		(xb1,yb1,zb1) = self.board.gates[b1]
-		(xb2,yb2,zb2) = self.board.gates[b2]
+		(xa1,ya1,za1) = self.board.gates[a1].getCoordinates()
+		(xa2,ya2,za2) = self.board.gates[a2].getCoordinates()
+		(xb1,yb1,zb1) = self.board.gates[b1].getCoordinates()
+		(xb2,yb2,zb2) = self.board.gates[b2].getCoordinates()
 		adist = abs(xa1-xa2)+abs(ya1-ya2)+abs(za1-za2)
 		bdist = abs(xb1-xb2)+abs(yb1-yb2)+abs(zb1-zb2)
 		if adist > bdist:
@@ -39,10 +39,10 @@ class Sorter(object):
 	def cmpByAngle(self, a, b):
 		a1, a2 = a
 		b1, b2 = b
-		(xa1,ya1,za1) = self.board.gates[a1]
-		(xa2,ya2,za2) = self.board.gates[a2]
-		(xb1,yb1,zb1) = self.board.gates[b1]
-		(xb2,yb2,zb2) = self.board.gates[b2]
+		(xa1,ya1,za1) = self.board.gates[a1].getCoordinates()
+		(xa2,ya2,za2) = self.board.gates[a2].getCoordinates()
+		(xb1,yb1,zb1) = self.board.gates[b1].getCoordinates()
+		(xb2,yb2,zb2) = self.board.gates[b2].getCoordinates()
 		aydiff = ya1-ya2
 		axdiff = xa1-xa2
 		bydiff = yb1-yb2

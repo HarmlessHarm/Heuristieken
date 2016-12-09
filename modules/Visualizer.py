@@ -26,7 +26,7 @@ class Visualizer(object):
 	def plotGates(self, ax):
 		#print self.board.gates
 		for g in self.board.gates:
-			x,y,z = self.board.gates[g]
+			x,y,z = self.board.gates[g].getCoordinates()
 			ax.scatter(x,y,z, c='r', marker='s')
 			ax.text(x,y,z,str(g),color='k', fontsize=12)
 
