@@ -34,7 +34,7 @@ def createBoard(i, layers):
 	    b = Board(width, height, layers)
 	    for gate in board['gates']:
 	    	g = Gate(gate['id']-1, gate['x'], gate['y'])
-	    	b.gates[g.gate_id] = (g.x, g.y, g.z)
+	    	b.gates[g.gate_id] = g #(g.x, g.y, g.z)
 	        b.setElementAt(g, g.x, g.y)
 
 	    return b
@@ -63,20 +63,20 @@ def checkPath(alg_str, board, start, end, i):
 	sys.stdout.flush()
 	# print 'hoi?'
 	if alg_str=='astar':
-		net = Net(board.gates[start], board.gates[end], i)
+		net = Net(start, end, i)
 		alg = AStar(board, net)
-		net = alg.createPath()
+		net.path = alg.createPath()
 	elif alg_str=='dijkstra':
 		net = Net(start, end, i)
 		alg = Dijkstra(board, net)
-		net = alg.createPath()
+		net.path = alg.createPath()
 	elif alg_str=='simple':
 		net = Net(start, end, i)
-		alg = EasyPath(board)
-		net = alg.createPath(net)
+		alg = EasyPath(board, net)
+		net.path = alg.createPath()
 		board.removeNetPath(net)
 		
-	if not net.path:
+	if net.path == []:
 		print '\nFailed planning a path for net', i, '!'
 		return False
 	else:

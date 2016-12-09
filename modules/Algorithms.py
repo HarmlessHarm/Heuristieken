@@ -7,20 +7,21 @@ from Sorter import *
 import copy
 
 class EasyPath(object):
-	"""docstring for EasyPath"""
-	def __init__(self, board):
+	"""Attempt at creating a path, doesn't work!"""
+	def __init__(self, board, net):
 		super(EasyPath, self).__init__()
 		self.board = board
+		self.net = net
 		
-	def createPath(self, net):
+	def createPath(self):
 		board = self.board
-		start = board.gates[net.start_gate]
-		end = board.gates[net.end_gate]
+		start = board.gates[self.net.start_gate].getCoordinates()
+		end = board.gates[self.net.end_gate].getCoordinates()
 
 		curPos = start
-		net.addPos(start)
+		path = [start]
 		
-		if curPos[2] < net.net_id:
+		if curPos[2] < self.net.net_id:
 			PHASE = 'UP'
 		else: 
 			PHASE = 'LAT'
@@ -48,12 +49,12 @@ class EasyPath(object):
 							if not nextPos:
 								nextPos = self.goNotY(curPos, dY, board)
 				if nextPos == False:
-					net.path = False
-					return net
-				net.addPos(nextPos)
-				board.setElementAt(net, nextPos[0], nextPos[1], nextPos[2])
+					path = []
+					return path
+				path.append(nextPos)
+				board.setElementAt(self.net, nextPos[0], nextPos[1], nextPos[2])
 				curPos = nextPos
-				if curPos[2] == net.net_id:
+				if curPos[2] == self.net.net_id:
 					PHASE = 'LAT'
 			# LATERAL PHASE
 			if PHASE == 'LAT':
@@ -66,10 +67,10 @@ class EasyPath(object):
 							nextPos = self.goNotY(curPos, dY, board)
 
 				if nextPos == False:
-					net.path = False
-					return net
-				net.addPos(nextPos)
-				board.setElementAt(net, nextPos[0], nextPos[1], nextPos[2])
+					path = []
+					return path
+				path.append(nextPos)
+				board.setElementAt(self.net, nextPos[0], nextPos[1], nextPos[2])
 				curPos = nextPos
 				if dX == 0 and dY == 0:
 					PHASE = 'DOWN'
@@ -91,15 +92,15 @@ class EasyPath(object):
 								if not nextPos:
 									nextPos = self.goNotY(curPos, dY, board)
 				if nextPos == False:
-					net.path = False
-					return net
-				net.addPos(nextPos)
-				board.setElementAt(net, nextPos[0], nextPos[1], nextPos[2])
+					path = []
+					return path
+				path.append(nextPos)
+				board.setElementAt(self.net, nextPos[0], nextPos[1], nextPos[2])
 				curPos = nextPos
 				if curPos[2] == 0:
 					PHASE = 'LAT'
-		net.addPos(end)
-		return net
+		path.append(end)
+		return path
 
 	def checkAdjacent(self, curPos, end):
 		# Same plane
@@ -185,18 +186,31 @@ class EasyPath(object):
 		return False
 
 class AStar(object):
-	"""docstring for AStar"""
+	"""Initialize the A* algorithm with a board and net for which to plan a path, optional is a bias parameter (either 'vertical' or 'lateral')
+	
+	Args:
+		board (:obj: Board): The board on which to plan a path
+		net (:obj: Net): The net for which to plan a path
+		bias (:obj:'str', optional): A flag indicating which distance bias to use.
+	"""
 	def __init__(self, board, net, bias='vertical'):
 		super(AStar, self).__init__()
 		self.board = board	
 		self.net = net
+		self.bias = bias
+	
 	
 	def createPath(self):
+		"""Run the algorithm to create a path
+
+		Returns:
+			list: empty if no path exists, ordered set of (x,y,z)-coordinates if there is.
+		"""
 		(x,y,z) = self.board.getDimensions()
 		start = self.board.gates[self.net.start_gate].getCoordinates()
 		(x_start, y_start, z_start) = start
-		end = self.board.gates[self.net.end_gate].getCoordinates()
-		(x_end, y_end, z_end) = end
+		goal = self.board.gates[self.net.end_gate].getCoordinates()
+		(x_end, y_end, z_end) = goal
 		#For each node, whether it has been evaluated
 		closedSet = np.zeros((x,y,z), dtype=bool)
 
@@ -227,8 +241,7 @@ class AStar(object):
 			if goal in self.board.getAllNeighbours(cx,cy,cz):
 				cameFrom[goal] = (cx,cy,cz)
 				path = self.reconstructPath(cameFrom, goal)
-				self.net.path = path
-				return self.net
+				return path
 
 			openSet.remove((cx, cy, cz))
 			closedSet[cx][cy][cz] = 1
@@ -237,7 +250,7 @@ class AStar(object):
 				if closedSet[nx][ny][nz]:
 					continue #neighbour is already evaluated
 
-				tentative_gscore = gScore[cx][cy][cz] + self.distance((nx,ny,nz), bias)
+				tentative_gscore = gScore[cx][cy][cz] + self.distance((nx,ny,nz))
 				if not (nx,ny,nz) in openSet:
 					openSet.append((nx,ny,nz))
 				elif tentative_gscore >= gScore[nx][ny][nz] >= 0:
@@ -246,14 +259,22 @@ class AStar(object):
 				cameFrom[(nx,ny,nz)] = (cx,cy,cz)
 				gScore[nx][ny][nz] = tentative_gscore
 				fScore[nx][ny][nz] = gScore[nx][ny][nz] + self.manhattanCostEstimate((nx,ny,nz),goal)
-		self.net.path = []
-		return self.net
+		
+		return []
+	
+	def distance(self, node):
+		"""Distance to node, based on its neighbours and the layer it is in, the bias in distance added is set when the objact is instantiated
 
-	# Distance to node, based on its neighbours and the layer it is in
-	def distance(self, node, bias):
+		Args:
+			node (tuple): a coordinate
+
+		Returns:
+			int: Distance to the node
+		"""
 		(x,y,z) = node
 		distance = 1
-		if bias=='vertical':
+		#Vertical bias 
+		if self.bias=='vertical':
 			for (nx,ny,nz) in self.board.getAllNeighbours(x,y,z):
 				if type(self.board.getElementAt(nx,ny,nz)) is Gate:
 					distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
@@ -261,22 +282,15 @@ class AStar(object):
 					distance += 3 #Add one distance for every adjacent net, this should space things out a bit
 
 				#Make higher paths more attractive
-				distance += pow(self.board.z_dim, 2) / (nz+1)
-		
-		elif bias=='lateral':
-			for (nx,ny,nz) in self.board.getAllNeighbours(x,y,z):
-				if type(self.board.getElementAt(nx,ny,nz)) is Gate:
-					distance += 4 #should be just enough to make the path that leaves one space around a gate be cheaper than the path that doesn't
-				elif type(self.board.getElementAt(nx,ny,nz)) is Net:
-					distance += 3 #Add one distance for every adjacent net, this should space things out a bit
-
-				#Make paths that are higher and avoid the board center more attractive
-				xCenter = self.board.x_dim/2
-				yCenter = self.board.y_dim/2
-				distanceFromCenter = abs(nx-xCenter)+abs(ny-yCenter)
-				distance += min(xCenter, yCenter) / (distanceFromCenter+1)
-				distance += pow(self.board.z_dim, 2) / (nz+1)
-		
+				if self.bias == 'vertical':
+					distance += pow(self.board.z_dim, 2) / (nz+1)
+				#Make paths that avoid the center of the board more attractive
+				elif self.bias == 'lateral':
+					xCenter = self.board.x_dim/2
+					yCenter = self.board.y_dim/2
+					distanceFromCenter = abs(nx-xCenter)+abs(ny-yCenter)
+					distance += min(xCenter, yCenter) / (distanceFromCenter+1)
+					distance += pow(self.board.z_dim, 2) / (nz+1)		
 
 		return distance
 
@@ -287,6 +301,7 @@ class AStar(object):
 		(x2,y2,z2) = node2
 		return abs(x2-x)+abs(y2-y)+abs(z2-z)
 
+	# Helper function to reconstruct the path
 	def reconstructPath(self, cameFrom, currentNode):
 		path = [currentNode]
 		while currentNode in cameFrom.keys():
@@ -295,7 +310,12 @@ class AStar(object):
 		return list(reversed(path))
 
 class Dijkstra(object):
-	"""docstring for Dijkstra"""
+	"""Dijkstras algorithm
+
+	Args:
+		board (:obj: Board): the board on which to plan a path
+		net (:obj: Net): a net object for which to plan a path
+	"""
 	def __init__(self, board, net):
 		super(Dijkstra, self).__init__()
 		self.board = board
@@ -303,11 +323,17 @@ class Dijkstra(object):
 		self.remaining = {}
 		self.explored = {}
 
+	"""
+	Create a path, returns a list of coordinates (including start and end gate coordinates), or empty list if no path exists.
+	
+	Returns: 
+		list: path as an ordered list of coordinates, empty if no path exists.
+	"""
 	def createPath(self):
 
 		# define start/end gate
-		start = self.board.gates[self.net.start_gate]
-		end = self.board.gates[self.net.end_gate]
+		start = self.board.gates[self.net.start_gate].getCoordinates()
+		end = self.board.gates[self.net.end_gate].getCoordinates()
 
 		self.remaining[start] = 0
 		ended = False
@@ -318,17 +344,17 @@ class Dijkstra(object):
 					ended = True
 				rem = self.explore(coord, val)
 				if rem == False:
-					self.net.path = False
-					return self.net
+					path = []
+					return path
 				newRemaining.update(rem)
 				self.explored[coord] = val
 			if newRemaining == {}:
-				self.net.path = False
-				return self.net
+				path = []
+				return path
 			self.remaining = newRemaining.copy()
 
 		coord = end
-		self.net.addPos(end)
+		path = [coord]
 		self.explored[end] = val + 1
 		found = False
 		while not found:
@@ -341,12 +367,21 @@ class Dijkstra(object):
 					self.net.path = False
 					return self.net
 
-			self.net.addPos(nextCoord)
+			path.append(nextCoord)
 			coord = nextCoord
 
-		return self.net
+		return path
 
-
+	"""
+	Explore the neighbours of coord, and set their distance. Returns the newly explored neighbours if there are any, 
+	
+	Args:
+		coord (tuple): The coordinates (x,y,z) of a node to be explored
+		val (int): The distance from start to coord
+	
+	Returns: 
+		dict<tuple, int>: A dictionary with open neighbours of coord and the distance to them from start
+	"""
 	def explore(self, coord, val):
 
 		newRemaining = {}
@@ -362,7 +397,15 @@ class Dijkstra(object):
 
 		return newRemaining
 
-
+	"""
+	Helper function to return the coordinates of the neighbour with the lowest distance to start
+	
+	Args:
+		coord (tuple): The coordinate (x,y,z) around which to search for the lowest distance
+	
+	Returns: 
+		tuple: the coordinate (x,y,z) with the lowest distance to start
+	"""
 	def getLowestValue(self, coord):
 
 		neighbours = self.board.getOpenNeighbours(coord[0], coord[1], coord[2])
@@ -384,12 +427,22 @@ class Dijkstra(object):
 		return bestCoord
 
 class DepthFirst(object):
-	"""docstring for Depthfirst"""
-	def __init__(self, netlist, board):
+	"""Depthfirst search through netlist orderings in an attempt to find a solvable ordering.
+	
+	Args:
+		board (:obj: Board): A board object on which to place the nets.
+		netlist (list<tuples>): A list of tuples with start and end gates [(start1, end1), (start2, end2), ..., (startN, endN)]
+	"""
+	def __init__(self, board, netlist):
 		super(DepthFirst, self).__init__()
 		self.netlist = netlist
 		self.board = board
 
+	"""Iterates depth-first through netlist orderings, aided by sorting the nets in netlist (the heuristic).
+	
+	Returns:
+		Board: A board with paths for all nets in netlist.
+	"""
 	def solve(self):
 		tree = []
 		discovered = []
@@ -402,11 +455,11 @@ class DepthFirst(object):
 		while len(tree) != 0:
 			currentNode = tree.pop()
 			iterations += 1
-			print 'size of stack:',len(tree), 'nets to be solved:', len(currentNode.netlist)
+			print 'size of stack:',len(tree), ',nets to be solved:', len(currentNode.netlist)
 
 			if len(currentNode.netlist) == 0:
 				n = self.reconstructNetlist(currentNode)
-				print 'Finding the answer took',iterations,'iterations' 
+				print 'Finding the right ordering took',iterations,'iterations' 
 				return currentNode.board, n
 
 			if currentNode not in discovered:
@@ -423,27 +476,37 @@ class DepthFirst(object):
 					new_netlist.remove((start, end))
 
 					# create net object for current net
-					net = Net(new_board.gates[start], new_board.gates[end], len(currentNode.netlist))
-					alg = AStar(new_board, net)
-					net = alg.createPath(net.start_gate, net.end_gate)
+					net = Net(start, end, len(currentNode.netlist))
 
-					if not net.path:
+					#run the A* algorithm
+					alg = AStar(new_board, net)
+					path = alg.createPath()
+
+					#if no path can be found, proceed to next net in netlist.
+					if path == []:
 						continue
 					
+					# add the net and path to the board
+					net.path = path
 					new_board.nets[net.net_id] = net
-					# add path to board
 					new_board.setNetPath(net)
 
 					# create new TreeNode object for current net
 					new_node = TreeNode(new_board, currentNode, new_netlist)
-
 					tree.append(new_node)
 				
-		# no solution found
+		# no solution found, practically unreachable due to the size of the tree
 		return False
 
-	# every element
 	def reconstructNetlist(self, currentNode):
+		"""Reconstructs the netlist from a TreeNode
+
+		Args:
+			currentNode (:obj:Treenode): A node from which to traverse back to start.
+
+		Returns:
+			list<Tuple>: An ordered netlist
+		"""
 		netlist = []
 		lastNode = currentNode.previousNode
 		while lastNode != 'start':
@@ -456,16 +519,23 @@ class DepthFirst(object):
 		return netlist
 
 class BreadthFirst(object):
-	"""docstring for BreadthFirst"""
+	"""
+	BreadthFirst algorithm for finding a set of paths
+	:param net: A Net object for which to find a path
+	:param board: A Board object on which to plan the path
+	"""
 	def __init__(self, net, board):
 		super(BreadthFirst, self).__init__()
 		self.start = board.gates[net.start_gate]
 		self.end = board.gates[net.end_gate]
 		self.board = board
 
-
-	#Creates at least all shortest paths, and maybe more. It runs for 10 percent more iterations than needed
-	# so that it finds some slightly longer paths as well.
+	"""
+	Creates at least all shortest paths, and maybe more. It runs for 10 percent more iterations than needed
+	so that it finds some slightly longer paths as well.
+	
+	:return: A list of ordered lists of coordinates, paths between start and end of net. 
+	"""
 	def createPaths(self):
 		queue = []
 		visited = []
@@ -493,10 +563,8 @@ class BreadthFirst(object):
 				if counter > maximum and maximum > 0:
 					return self.reconstructPaths(dictPreviousNode, [self.end.getCoordinates()])
 
-
-				neighbours = self.board.getOpenNeighbours(x,y,z)
 				# voeg buren toe aan queue als je deze nog niet gecheckt hebt
-
+				neighbours = self.board.getOpenNeighbours(x,y,z)
 				for neighbour in neighbours:
 					if neighbour in visited:
 						continue
@@ -510,11 +578,20 @@ class BreadthFirst(object):
 
 				visited.append(currentNode)
 				counter += 1
-		# lala
-		# return self.reconstructPaths(dictPreviousNode, [self.end])
+
 		return []
 
 	def reconstructPaths(self, cameFrom, path, paths = []):
+		"""Reconstructs all paths between goal and start node
+
+		Args:
+			cameFrom (dict): a dictionary that maps each coordinate to a list of coordinates from which this can be reached
+			path (list): a path
+			paths (list): a list of paths
+
+		Return:
+			list: a list of all paths.		
+		"""
 		lastNode = path[-1]
 		if lastNode in cameFrom.keys():
 			for nextNode in cameFrom[lastNode]:
@@ -526,7 +603,13 @@ class BreadthFirst(object):
 		return paths
 
 class GeneticOpt(object):
-	"""docstring for GeneticOpt"""
+	"""A genetic algorithm for optimizing a board and net configuration.
+
+	Args:
+		base_board (:obj: Board): The unoptimized board
+		max_generations (int): The number of generations to simulate
+		max_population (int): The size of the population
+	"""
 	def __init__(self, base_board, max_generations, max_population):
 		super(GeneticOpt, self).__init__()
 		self.base_board = base_board
@@ -536,13 +619,22 @@ class GeneticOpt(object):
 		self.population = self.initPop()
 
 	def initPop(self):
+		"""Initialize the population
 
+		Return:
+			list: A list of <max_generation> deep-copied board objects
+		"""
 		pop = []
 		for i in range(self.max_population):
 			pop.append((copy.deepcopy(self.base_board), self.base_score))
 		return pop
 
 	def run(self):
+		"""Run the algorithm
+
+		Return:
+			:obj:Board: The board with the lowest score from the last generation
+		"""
 		for i in range(self.max_generations):
 			print "In Generation", i
 			newPop = self.iteration(self.population)
@@ -558,6 +650,14 @@ class GeneticOpt(object):
 		
 
 	def iteration(self, population):
+		"""Runs the A* path finding algorithm for each member of the population
+		
+		Args:
+			population (int): The number of individuals in each generation
+
+		Return:
+			list :A list with the new population as tuples of (board, score)
+		"""
 		newPop = []
 		for i, (board, score) in enumerate(population):
 			if i % 100 == 0:
@@ -595,14 +695,16 @@ class GeneticOpt(object):
 
 
 class HillClimber(object):
-	"""docstring for hillClimber"""
-	def __init__(self, board):
+	"""Hillclimber Algorithm NOT FINISHED
+	"""
+	def __init__(self, board, iterations=1):
 		super(HillClimber, self).__init__()
 		self.board = board
+		self.iterations = iterations
 
-	def solve(self, iterations=1):
+	def solve(self):
 
-		for i in range(iterations):
+		for i in range(self.iterations):
 			
 			print 'hillclimbing iteration:', i
 			random_net = random.choice(self.board.nets)
@@ -660,7 +762,7 @@ if __name__ == '__main__':
 	# print 'found', len(paths), 'possible paths'
 	# print 'The first is:', paths[0]	
 	hc = HillClimber(board)
-	newBoard = hc.solve(5)
+	newBoard = hc.solve()
 	print 'new board score:', newBoard.getScore()
 	# v = Visualizer(newBoard)
 	# v.start()
