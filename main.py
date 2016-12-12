@@ -71,11 +71,13 @@ if __name__ == '__main__':
 		genBoard = gen.run()
 
 	if args.visualization:
-		v = Visualizer(board)
-		v.start()
 		if args.genetic:
-			vg = Visualizer(genBoard)
-			vg.start()
+			v = Visualizer(board, genBoard)
+		else:
+			v = Visualizer(board)
+
+		v.start()
+		
 
 
 	

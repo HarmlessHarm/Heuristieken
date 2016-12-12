@@ -174,7 +174,7 @@ class Board(object):
             score (int): 
         """
         score = 0
-        for netID, netObject in self.nets:
+        for netID, netObject in self.nets.iteritems():
             # returns all net objects
             startId = netObject.start_gate
             endId = netObject.end_gate
@@ -194,8 +194,8 @@ class Board(object):
         """
         Returns the relative score between minimum and actual score.
         """
-        minimum = getMinimumScore()
-        current = getScore()
+        minimum = self.getMinimumScore()
+        current = self.getScore()
         # check how many times current score fits into min. score
         return current[1] / minimum
 
