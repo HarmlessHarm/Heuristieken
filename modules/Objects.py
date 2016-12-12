@@ -210,8 +210,13 @@ class Board(object):
         Returns:
             bool: True if completed. False if a position isn't valid.
         """
-        for (x, y, z) in net.path[1:-1]:
+        toremove = net.path[1:-1]
+        for i, (x, y, z) in enumerate(toremove):
             if not self.setElementAt(net, x, y, z):
+                print 'False @:',(x,y,z)
+                if i != 0:
+                    for coord in toremove[:i]:
+                        self.removeElementAt(coord)
                 return False
         return True
 

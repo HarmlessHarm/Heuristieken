@@ -23,8 +23,8 @@ def randomSamples(iterations, bi, ni):
 			l.append(score)
 
 def astar(alg_str, boardN, netN):
-	netlist = readNetlists()[0]
-	board = runAlgorithm(alg_str, boardN, netlist, 10, recursive=True)
+	netlist = readNetlists()[netN]
+	board = runAlgorithm(alg_str, boardN, netlist, 5, recursive=True)
 	try:
 		print board.getScore()
 	except e:
@@ -36,7 +36,7 @@ def astar(alg_str, boardN, netN):
 
 
 def genetic(board, gens, pop):
-	gen = GeneticOpt(board, gens, pop)
+	gen = GeneticOpt('astar',board, gens, pop)
 	# print gne.population
 	genBoard = gen.run()
 	dumpBoard(genBoard, 'astar', genetic=True, gen=gens, pop=pop)
@@ -44,13 +44,13 @@ def genetic(board, gens, pop):
 
 
 
-board = findBoard('astar', 1, 1, 10)
-if not board:
-	board = astar('astar', 0, 0)
+# board = findBoard('astar', 1, 1, 10)
+# if not board:
+board = astar('astar', 0,0)
 # genBoard = findBoard('astar' , 1, 1, 10, genetic=True, gen=100,pop=100)
 # if not genBoard:
 	# nb = copy.deepcopy(board)
-genBoard = genetic(board, 100, 50)
+genBoard = genetic(board, 10, 50)
 	# print genBoard
 
 v = Visualizer(board)

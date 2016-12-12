@@ -68,6 +68,7 @@ def dumpBoard(board, alg_str, fileName=None, genetic=False, gen=None, pop=None):
 			netN = 'x'
 	else:
 		boardN = 'x'
+		netN = 'x'
 	d = './boards/'
 	if fileName == None:
 		fileName = 'board_' + str(alg_str) \

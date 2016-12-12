@@ -21,7 +21,7 @@ class Visualizer(object):
 			ax1 = fig.add_subplot(121, projection = '3d')
 
 		ax1.set_zlim([0,self.board.z_dim])
-		ax1.set_title("Absolute score: " + str(self.board.getScore()[1]) + "\n Relative score: " + str(self.board.getRelativeScore()))
+		# ax1.set_title("Absolute score: " + str(self.board.getScore()[1]) + "\n Relative score: " + str(self.board.getRelativeScore()))
 
 		# self.plotGridLines(ax1)
 		self.plotGates(ax1, self.board)

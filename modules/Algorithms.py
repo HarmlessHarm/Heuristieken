@@ -8,7 +8,6 @@ from Sorter import *
 import copy
 import pprint
 
-
 class EasyPath(object):
 	"""Attempt at creating a path, doesn't work!"""
 	def __init__(self, board, net):
@@ -531,7 +530,10 @@ class BreadthFirst(object):
 		super(BreadthFirst, self).__init__()
 		self.start = board.gates[net.start_gate]
 		self.end = board.gates[net.end_gate]
-		self.board = board
+		self.board = copy.deepcopy(board)
+		(sx,sy,sz) = self.start.getCoordinates()
+		(ex,ey,ez) = self.end.getCoordinates()
+		self.max = abs(ex-sx)+abs(ey-sy)+abs(ez-sz)+5
 
 	"""
 	Creates at least all shortest paths, and maybe more. It runs for 10 percent more iterations than needed
@@ -545,26 +547,28 @@ class BreadthFirst(object):
 		dictPreviousNode = {}
 		counter = 0
 		maximum = -1
+		# allPaths = []
 
 		queue.insert(0, self.start.getCoordinates())
 		while len(queue) != 0:
 			currentNode = queue.pop()
-
 			if currentNode not in visited:
 				# vind alle buren
 				(x,y,z) = currentNode
+				(sx,sy,sz) = self.start.getCoordinates()
+				currentDepth = abs(x-sx)+abs(y-sy)+abs(z-sz)
 
 				# If currentNode is adjacent to the end node, we are almost done!
 				if self.end.getCoordinates() in self.board.getAllNeighbours(x,y,z):
-					if self.end not in dictPreviousNode.keys():
+					if self.end.getCoordinates() not in dictPreviousNode.keys():
 						dictPreviousNode[self.end.getCoordinates()] = [currentNode]
 					else:
 						dictPreviousNode[self.end.getCoordinates()].append(currentNode)
-					#return self.reconstructPaths(dictPreviousNode, [self.end])
-					maximum = math.floor(counter * 1.1)
+					# return self.reconstructPaths(dictPreviousNode, [self.end.getCoordinates()])
 					
-				if counter > maximum and maximum > 0:
-					return self.reconstructPaths(dictPreviousNode, [self.end.getCoordinates()])
+				if currentDepth > self.max:
+					allPaths = self.reconstructPaths(dictPreviousNode, [self.end.getCoordinates()],[])
+					return allPaths
 
 				# voeg buren toe aan queue als je deze nog niet gecheckt hebt
 				neighbours = self.board.getOpenNeighbours(x,y,z)
@@ -580,10 +584,10 @@ class BreadthFirst(object):
 					queue.insert(0, neighbour)
 				visited.append(currentNode)
 				counter += 1
+		allPaths = self.reconstructPaths(dictPreviousNode, [self.end.getCoordinates()],[])
+		return allPaths
 
-		return []
-
-	def reconstructPaths(self, cameFrom, path, paths = []):
+	def reconstructPaths(self, cameFrom, path, paths=[]):
 		"""Reconstructs all paths between goal and start node
 
 		Args:
@@ -642,8 +646,8 @@ class GeneticOpt(object):
 			print "In Generation", i
 			newPop = self.iteration(self.population)
 			sortedPop = self.sortPop(newPop)
-			# print self.population[0][1]
-			print [score for l,score in self.population]
+			print self.population[0][1]
+			# print [score for l,score in self.population]
 			killedPop = self.killPop(sortedPop)
 			self.population = self.repopulate(killedPop)
 		print "Improved from", self.base_score, 'to', self.population[0][1]
@@ -665,34 +669,37 @@ class GeneticOpt(object):
 				print '.',
 				sys.stdout.flush()
 			net = random.choice(board.nets)
-			oldPath = net.path
+			oldPath = copy.deepcopy(net.path)
+			# print [len(net.path) for i,net in board.nets.iteritems()]
 			board.removeNetPath(net)
-			# net = Net(ran/d_net[0], net[1], i)
 			if self.alg_str == 'astar':
 				astar = AStar(board, net, bias=False)
 				path = astar.createPath()
 			else:
 				bfs = BreadthFirst(net, board)
+				paths = []
 				paths = bfs.createPaths()
+				# for p in paths:
+				# 	print p[0]
 				if len(paths) > 0:
 					path = random.choice(paths)
-				else: path = []
+				else: 
+					print "No paths found"
+					path = []
 
 			net.path = path
 			if len(net.path) == 0:
 				# print '\nFailed planning a better path for net', i, '!'
 				net.path = oldPath
-				if board.setNetPath(net):
-					newScore = board.getScore()[1]
-					newPop.append((board, newScore))
-				else:
+				if not board.setNetPath(net):
 					print "OLD SHIT IS WRONG!!"
+				newScore = board.getScore()[1]
+				newPop.append((board, newScore))
 			else:
-				if(board.setNetPath(net)):
-					newScore = board.getScore()[1]
-					newPop.append((board, newScore))
-				else:
-					print "SHIT IS WRONG!!!"
+				if not board.setNetPath(net):
+					print i, "SHIT IS WRONG!!!"
+				newScore = board.getScore()[1]
+				newPop.append((board, newScore))
 		return newPop
 
 	def sortPop(self, pop):
