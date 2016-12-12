@@ -67,7 +67,7 @@ if __name__ == '__main__':
 	
 	dumpBoard(board, alg)
 	if args.genetic:
-		gen = GeneticOpt(board, gen, pop)
+		gen = GeneticOpt('astar',board, gen, pop)
 		genBoard = gen.run()
 
 	if args.visualization:

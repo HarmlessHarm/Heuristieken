@@ -6,6 +6,8 @@ from Objects import *
 from Visualizer import *
 from Sorter import *
 import copy
+import pprint
+
 
 class EasyPath(object):
 	"""Attempt at creating a path, doesn't work!"""
@@ -550,14 +552,14 @@ class BreadthFirst(object):
 
 			if currentNode not in visited:
 				# vind alle buren
-				(x,y,z) = currentNode.getCoordinates()
+				(x,y,z) = currentNode
 
 				# If currentNode is adjacent to the end node, we are almost done!
 				if self.end.getCoordinates() in self.board.getAllNeighbours(x,y,z):
 					if self.end not in dictPreviousNode.keys():
-						dictPreviousNode[self.end] = [currentNode]
+						dictPreviousNode[self.end.getCoordinates()] = [currentNode]
 					else:
-						dictPreviousNode[self.end].append(currentNode)
+						dictPreviousNode[self.end.getCoordinates()].append(currentNode)
 					#return self.reconstructPaths(dictPreviousNode, [self.end])
 					maximum = math.floor(counter * 1.1)
 					
@@ -576,7 +578,6 @@ class BreadthFirst(object):
 						dictPreviousNode[neighbour].append(currentNode)
 
 					queue.insert(0, neighbour)
-
 				visited.append(currentNode)
 				counter += 1
 
@@ -611,8 +612,9 @@ class GeneticOpt(object):
 		max_generations (int): The number of generations to simulate
 		max_population (int): The size of the population
 	"""
-	def __init__(self, base_board, max_generations, max_population):
+	def __init__(self, alg_str, base_board, max_generations, max_population):
 		super(GeneticOpt, self).__init__()
+		self.alg_str = alg_str
 		self.base_board = base_board
 		self.max_generations = max_generations
 		self.max_population = max_population
@@ -640,7 +642,8 @@ class GeneticOpt(object):
 			print "In Generation", i
 			newPop = self.iteration(self.population)
 			sortedPop = self.sortPop(newPop)
-			print self.population[0][1]
+			# print self.population[0][1]
+			print [score for l,score in self.population]
 			killedPop = self.killPop(sortedPop)
 			self.population = self.repopulate(killedPop)
 		print "Improved from", self.base_score, 'to', self.population[0][1]
@@ -665,22 +668,31 @@ class GeneticOpt(object):
 			oldPath = net.path
 			board.removeNetPath(net)
 			# net = Net(ran/d_net[0], net[1], i)
-			astar = AStar(board, net, bias=False)
-			path = astar.createPath()
+			if self.alg_str == 'astar':
+				astar = AStar(board, net, bias=False)
+				path = astar.createPath()
+			else:
+				bfs = BreadthFirst(net, board)
+				paths = bfs.createPaths()
+				if len(paths) > 0:
+					path = random.choice(paths)
+				else: path = []
+
 			net.path = path
 			if len(net.path) == 0:
-				print '\nFailed planning a better path for net', i, '!'
+				# print '\nFailed planning a better path for net', i, '!'
 				net.path = oldPath
-				board.setNetPath(net)
+				if board.setNetPath(net):
+					newScore = board.getScore()[1]
+					newPop.append((board, newScore))
+				else:
+					print "OLD SHIT IS WRONG!!"
 			else:
-				board.setNetPath(net)
-				newScore = board.getScore()[1]
-				# if newScore == score:
-				# 	pass
-				# 	# print "No improvement, cost:", score
-				# else:
-				# 	print "Found new path: old score:", score, "new score:", newScore
-				newPop.append((board, newScore))
+				if(board.setNetPath(net)):
+					newScore = board.getScore()[1]
+					newPop.append((board, newScore))
+				else:
+					print "SHIT IS WRONG!!!"
 		return newPop
 
 	def sortPop(self, pop):
