@@ -554,9 +554,9 @@ class BreadthFirst(object):
 				# If currentNode is adjacent to the end node, we are almost done!
 				if self.end.getCoordinates() in self.board.getAllNeighbours(x,y,z):
 					if self.end not in dictPreviousNode.keys():
-						dictPreviousNode[self.end] = [currentNode]
+						dictPreviousNode[self.end.getCoordinates()] = [currentNode]
 					else:
-						dictPreviousNode[self.end].append(currentNode)
+						dictPreviousNode[self.end.getCoordinates()].append(currentNode)
 					#return self.reconstructPaths(dictPreviousNode, [self.end])
 					maximum = math.floor(counter * 1.1)
 					
@@ -664,9 +664,9 @@ class GeneticOpt(object):
 			oldPath = net.path
 			board.removeNetPath(net)
 			# net = Net(ran/d_net[0], net[1], i)
-			astar = AStar(board, net)
-			net = astar.createPath(net.start_gate, net.end_gate, bias=False)
-			if not net.path:
+			astar = AStar(board, net, bias=False)
+			net.path = astar.createPath()
+			if net.path == []:
 				print '\nFailed planning a better path for net', i, '!'
 				net.path = oldPath
 				board.setNetPath(net)
@@ -691,75 +691,62 @@ class GeneticOpt(object):
 		return copy.deepcopy(pop) + copy.deepcopy(pop)
 
 
-class HillClimber(object):
-	"""Hillclimber Algorithm NOT FINISHED
-	"""
-	def __init__(self, board, iterations=1):
-		super(HillClimber, self).__init__()
-		self.board = board
-		self.iterations = iterations
+# class HillClimber(object):
+# 	"""Hillclimber Algorithm NOT FINISHED
+# 	"""
+# 	def __init__(self, board, iterations=1):
+# 		super(HillClimber, self).__init__()
+# 		self.board = board
+# 		self.iterations = iterations
 
-	def solve(self):
+# 	def solve(self):
 
-		for i in range(self.iterations):
+# 		for i in range(self.iterations):
 			
-			print 'hillclimbing iteration:', i
-			random_net = random.choice(self.board.nets)
-			print 'changing net:', random_net.net_id
-			print 'With current path:', random_net.path
-			oldpath = copy.deepcopy(random_net.path)
+# 			print 'hillclimbing iteration:', i
+# 			random_net = random.choice(self.board.nets)
+# 			print 'changing net:', random_net.net_id
+# 			print 'With current path:', random_net.path
+# 			oldpath = copy.deepcopy(random_net.path)
 
-			startGateID = self.board.getElementAt(random_net.start_gate[0],random_net.start_gate[1],random_net.start_gate[2]).gate_id
-			endGateID = self.board.getElementAt(random_net.end_gate[0],random_net.end_gate[1],random_net.end_gate[2]).gate_id
+# 			startGateID = self.board.getElementAt(random_net.start_gate[0],random_net.start_gate[1],random_net.start_gate[2]).gate_id
+# 			endGateID = self.board.getElementAt(random_net.end_gate[0],random_net.end_gate[1],random_net.end_gate[2]).gate_id
 			
-			if not self.board.removeNetPath(random_net):
-				print 'Failed removing old path!'
+# 			if not self.board.removeNetPath(random_net):
+# 				print 'Failed removing old path!'
 
-			breadthFirstAlgorithm = BreadthFirst(startGateID, endGateID, self.board)
-			possibleNewPaths = breadthFirstAlgorithm.solve()
+# 			breadthFirstAlgorithm = BreadthFirst(startGateID, endGateID, self.board)
+# 			possibleNewPaths = breadthFirstAlgorithm.solve()
 
-			print 'found', len(possibleNewPaths), 'paths'
-			if len(possibleNewPaths) < 1:
-				continue
+# 			print 'found', len(possibleNewPaths), 'paths'
+# 			if len(possibleNewPaths) < 1:
+# 				continue
 			
-			random_net.path = random.choice(possibleNewPaths)
-			print 'New path is:', random_net.path
+# 			random_net.path = random.choice(possibleNewPaths)
+# 			print 'New path is:', random_net.path
 
-			# astar = AStar(self.board, random_net)
-			# print random_net.path
-			# random_net = astar.createPath(random_net.start_gate, random_net.end_gate, 'no_bias')
-			# print random_net.path
+# 			# astar = AStar(self.board, random_net)
+# 			# print random_net.path
+# 			# random_net = astar.createPath(random_net.start_gate, random_net.end_gate, 'no_bias')
+# 			# print random_net.path
 
 
-			if len(random_net.path) <= len(oldpath):
-				print 'selected path is smaller than or equal to original path'
-				if not self.board.setNetPath(random_net):
-					print 'Failed placing path!'
-					break
-			else:
-				random_net.path = oldpath
-				if not self.board.setNetPath(random_net):
-					print 'Failed restoring old path!'
-					break
+# 			if len(random_net.path) <= len(oldpath):
+# 				print 'selected path is smaller than or equal to original path'
+# 				if not self.board.setNetPath(random_net):
+# 					print 'Failed placing path!'
+# 					break
+# 			else:
+# 				random_net.path = oldpath
+# 				if not self.board.setNetPath(random_net):
+# 					print 'Failed restoring old path!'
+# 					break
 
-		return self.board
+# 		return self.board
 
 if __name__ == '__main__':
 	from helpers import *
 
-	netlist = [(15, 8), (3, 15), (15, 5), (20, 19), (23, 4), (5, 7), (1, 0), (15, 21), (3, 5), (7, 13), (3, 23), (23, 8), (22, 13), (15, 17), (20, 10), (13, 18), (19, 2), (22, 11), (10, 4), (11, 24), (2, 20), (3, 4), (16, 9), (19, 5), (3, 0), (6, 14), (7, 9), (9, 13), (22, 16), (10, 7)]
-	board = runAlgorithm('astar', 0, netlist, 5, recursive=True)
-	print '\nold board score:', board.getScore()
-	# net = board.nets[0]
-	# print 'Planning new path from',net.start_gate, 'to', net.end_gate
-	# print 'old path', net.path
-	# board.removeNetPath(net)
-	# bfa = BreadthFirst(board.getElementAt(net.start_gate[0],net.start_gate[1],net.start_gate[2]).gate_id, board.getElementAt(net.end_gate[0],net.end_gate[1],net.end_gate[2]).gate_id, board)
-	# paths = bfa.solve()
-	# print 'found', len(paths), 'possible paths'
-	# print 'The first is:', paths[0]	
-	hc = HillClimber(board)
-	newBoard = hc.solve()
-	print 'new board score:', newBoard.getScore()
+	board = readBoard('board_astar_b1_n1_l10.pkl')
 	# v = Visualizer(newBoard)
 	# v.start()
