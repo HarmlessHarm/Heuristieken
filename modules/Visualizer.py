@@ -12,7 +12,6 @@ class Visualizer(object):
 
 	def start(self):
 		fig = plt.figure(figsize=(15, 8))
-		# title centered above all subplots
 		st = fig.suptitle("Boards", fontsize = "x-large")
 
 		if self.board2 is False:
@@ -23,7 +22,7 @@ class Visualizer(object):
 		ax1.set_zlim([0,self.board.z_dim])
 		ax1.set_title("Absolute score: " + str(self.board.getScore()[1]) + "\n Relative score: " + str(self.board.getRelativeScore()))
 
-		# self.plotGridLines(ax1)
+		# self.plotGridLines(ax1, board)
 		self.plotGates(ax1, self.board)
 		self.plotNets(ax1, self.board)
 		ax1.set_xlabel('width')
@@ -36,7 +35,7 @@ class Visualizer(object):
 			ax2.set_zlim([0,self.board2.z_dim])
 			ax2.set_title("Absolute score: " + str(self.board2.getScore()[1]) + "\n Relative score: " + str(self.board2.getRelativeScore()))
 
-			# self.plotGridLines(ax2)
+			# self.plotGridLines(ax2, board2)
 			self.plotGates(ax2, self.board2)
 			self.plotNets(ax2, self.board2)
 			ax2.set_xlabel('width')
@@ -53,8 +52,8 @@ class Visualizer(object):
 			ax.scatter(x,y,z, c='r', marker='s')
 			ax.text(x,y,z,str(g),color='k', fontsize=12)
 
-	def plotGridLines(self, ax):
-		width, height, depth = self.board.getDimensions()	
+	def plotGridLines(self, ax, board):
+		width, height, depth = board.getDimensions()	
 		for i in range(width+1):
 			ax.plot([i,i],[0,height], c='0.2')
 		for j in range(height+1):
