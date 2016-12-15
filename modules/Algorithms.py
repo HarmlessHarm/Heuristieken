@@ -533,7 +533,7 @@ class BreadthFirst(object):
 		self.board = copy.deepcopy(board)
 		(sx,sy,sz) = self.start.getCoordinates()
 		(ex,ey,ez) = self.end.getCoordinates()
-		self.max = abs(ex-sx)+abs(ey-sy)+abs(ez-sz)+5
+		self.max = abs(ex-sx)+abs(ey-sy)+abs(ez-sz)+2
 
 	"""
 	Creates at least all shortest paths, and maybe more. It runs for 10 percent more iterations than needed
@@ -647,6 +647,7 @@ class GeneticOpt(object):
 			newPop = self.iteration(self.population)
 			sortedPop = self.sortPop(newPop)
 			print self.population[0][1]
+			print [str(net.start_gate)+">"+str(net.end_gate)+":"+str(len(net.path)) for i, net in self.population[0][0].nets.iteritems()]
 			# print [score for l,score in self.population]
 			killedPop = self.killPop(sortedPop)
 			self.population = self.repopulate(killedPop)
@@ -710,7 +711,6 @@ class GeneticOpt(object):
 
 	def repopulate(self, pop):
 		return copy.deepcopy(pop) + copy.deepcopy(pop)
-
 
 class HillClimber(object):
 	"""Hillclimber Algorithm NOT FINISHED

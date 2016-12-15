@@ -36,7 +36,7 @@ def astar(alg_str, boardN, netN):
 
 
 def genetic(board, gens, pop):
-	gen = GeneticOpt('astar',board, gens, pop)
+	gen = GeneticOpt('bfs',board, gens, pop)
 	# print gne.population
 	genBoard = gen.run()
 	dumpBoard(genBoard, 'astar', genetic=True, gen=gens, pop=pop)
@@ -50,7 +50,7 @@ board = astar('astar', 0,0)
 # genBoard = findBoard('astar' , 1, 1, 10, genetic=True, gen=100,pop=100)
 # if not genBoard:
 	# nb = copy.deepcopy(board)
-genBoard = genetic(board, 10, 50)
+genBoard = genetic(board, 10, 10)
 	# print genBoard
 
 v = Visualizer(board)
