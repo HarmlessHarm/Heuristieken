@@ -61,7 +61,7 @@ def dumpBoard(board, alg_str, fileName=None, genetic=False, gen=None, pop=None):
 		if netLen == 50:
 			netN = 4
 		elif netLen == 60:
-			netN == 5
+			netN = 5
 		elif netLen == 70:
 			netN = 6
 		else:

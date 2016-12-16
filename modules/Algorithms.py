@@ -195,11 +195,12 @@ class AStar(object):
 		net (:obj: Net): The net for which to plan a path
 		bias (:obj:'str', optional): A flag indicating which distance bias to use.
 	"""
-	def __init__(self, board, net, bias='vertical'):
+	def __init__(self, board, net, bias='vertical', multiple=False):
 		super(AStar, self).__init__()
 		self.board = board	
 		self.net = net
 		self.bias = bias
+		self.multiple = multiple
 	
 	
 	def createPath(self):
@@ -231,6 +232,8 @@ class AStar(object):
 		#Default is -1, as placeholder for infinity
 		fScore = np.full((x,y,z), -1, dtype='int64')
 		fScore[x_start][y_start][z_start] = self.manhattanCostEstimate(start, goal)
+
+		bestLen = sys.maxint
 
 		while openSet != []:
 			# Set currentNode to be the node in openset with the lowest fscore (above -1)
@@ -305,11 +308,28 @@ class AStar(object):
 
 	# Helper function to reconstruct the path
 	def reconstructPath(self, cameFrom, currentNode):
-		path = [currentNode]
-		while currentNode in cameFrom.keys():
-			currentNode = cameFrom[currentNode]
-			path.append(currentNode)
-		return list(reversed(path))
+		# pprint.pprint( cameFrom)
+		if self.multiple:
+			paths = []
+			allPaths = self.returnMultiplePaths(cameFrom, [currentNode], paths)
+			return allPaths
+		else:
+			path = [currentNode]
+			while currentNode in cameFrom.keys():
+				currentNode = cameFrom[currentNode]
+				path.append(currentNode)
+			return list(reversed(path))
+
+	def returnMultiplePaths(self, cameFrom, path, paths):
+		lastNode = path[-1]
+		if lastNode in cameFrom.keys():
+			for nextNode in cameFrom[lastNode]:
+				new_path = path + [nextNode]
+				paths = self.returnMultiplePaths(cameFrom, new_path, paths)
+		else:
+			path = list(reversed(path))
+			paths += [path]
+		return paths
 
 class Dijkstra(object):
 	"""Dijkstras algorithm
@@ -647,7 +667,7 @@ class GeneticOpt(object):
 			newPop = self.iteration(self.population)
 			sortedPop = self.sortPop(newPop)
 			print self.population[0][1]
-			print [str(net.start_gate)+">"+str(net.end_gate)+":"+str(len(net.path)) for i, net in self.population[0][0].nets.iteritems()]
+			# print [str(net.start_gate)+">"+str(net.end_gate)+":"+str(len(net.path)) for i, net in self.population[0][0].nets.iteritems()]
 			# print [score for l,score in self.population]
 			killedPop = self.killPop(sortedPop)
 			self.population = self.repopulate(killedPop)
@@ -674,8 +694,10 @@ class GeneticOpt(object):
 			# print [len(net.path) for i,net in board.nets.iteritems()]
 			board.removeNetPath(net)
 			if self.alg_str == 'astar':
-				astar = AStar(board, net, bias=False)
+				astar = AStar(board, net, bias=False, multiple=False)
 				path = astar.createPath()
+				# print path
+				# path = random.choice(paths)
 			else:
 				bfs = BreadthFirst(net, board)
 				paths = []

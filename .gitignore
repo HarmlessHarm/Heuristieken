@@ -90,3 +90,5 @@ ENV/
 
 #OSx 
 .DS_Store
+
+boards/
