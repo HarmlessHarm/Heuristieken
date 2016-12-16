@@ -24,7 +24,7 @@ def randomSamples(iterations, bi, ni):
 
 def astar(alg_str, boardN, netN):
 	netlist = readNetlists()[netN]
-	board = runAlgorithm(alg_str, boardN, netlist, 5, recursive=True)
+	board = runAlgorithm(alg_str, boardN, netlist, 3, recursive=True)
 	try:
 		print board.getScore()
 	except e:
@@ -50,7 +50,7 @@ board = astar('astar', 0,0)
 # genBoard = findBoard('astar' , 1, 1, 10, genetic=True, gen=100,pop=100)
 # if not genBoard:
 	# nb = copy.deepcopy(board)
-genBoard = genetic(board, 10, 10)
+genBoard = genetic(board, 50,1000)
 	# print genBoard
 
 v = Visualizer(board)

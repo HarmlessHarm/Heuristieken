@@ -20,7 +20,7 @@ class Visualizer(object):
 			ax1 = fig.add_subplot(121, projection = '3d')
 
 		ax1.set_zlim([0,self.board.z_dim])
-		# ax1.set_title("Absolute score: " + str(self.board.getScore()[1]) + "\n Relative score: " + str(self.board.getRelativeScore()))
+		ax1.set_title("Absolute score: " + str(self.board.getScore()[1]) + "\n Relative score: " + str(self.board.getRelativeScore()))
 
 		# self.plotGridLines(ax1, board)
 		self.plotGates(ax1, self.board)
@@ -68,7 +68,7 @@ class Visualizer(object):
 			if net.path != False:
 				for i, (x,y,z) in enumerate(net.path[:-1]):
 					(nx,ny,nz) = net.path[i+1]
-					ax.plot([x,nx],[y,ny],[z,nz], color=color, alpha=0.8)
+					ax.plot([x,nx],[y,ny],[z,nz], color=color, alpha=0.8, linewidth=2.0)
 
 	
 if __name__ == '__main__':
