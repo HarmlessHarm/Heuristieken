@@ -8,7 +8,7 @@ import math
 
 class Sorter(object):
 
-    """docstring for Sorter"""
+    """Sorter was made for sorting netlists by properties such as distance and angle, but never provided results and was deprecated."""
 
     def __init__(self, netlist, board):
         super(Sorter, self).__init__()
