@@ -18,6 +18,7 @@ if __name__ == '__main__':
 	parser.add_argument('-G', '--genetic', action='store_true', help="Specify if genetic optimization is wanted")
 	parser.add_argument('-g', '--generations', type=int, help='specify how many generation')
 	parser.add_argument('-p', '--population', type=int, help='specify how big the population should be')
+	parser.add_argument('-R', '--read', action='store_true', help='specify if you want to check for an existing board')
 	args = parser.parse_args()
 
 	netlists = readNetlists()
@@ -54,18 +55,24 @@ if __name__ == '__main__':
 			pop = args.population
 	# netlist = [(24, 12), (18, 13), (2, 5), (0, 15), (1, 21), (22, 10), (11, 12), (15, 13), (15, 10), (22, 18), (3, 0), (13, 19), (22, 8), (15, 4), (16, 21), (8, 18), (12, 20), (5, 17), (10, 4), (14, 1), (12, 13), (8, 23), (4, 0), (4, 3), (10, 20), (11, 7), (10, 5), (18, 21), (9, 23), (19, 9), (11, 15), (17, 11), (19, 8), (14, 6), (23, 20), (14, 5), (1, 22), (6, 9), (13, 11), (14, 7)]
 
-	print 'Running', alg, 'on board', b_id, 'with netlist', n_id, 'and maximum number of layers:', l
 
-	if args.depthfirstsearch:
-		board = createBoard(b_id, l)
-		dfs = DepthFirst(board, netlist)
-		board, netlist = dfs.solve()
-	else:
-		board = runAlgorithm(alg, b_id, netlist, l, args.recursion)
-		print '\nSolved', board.getScore()[0], 'nets with a total path length of:', board.getScore()[1]
+	if args.read:
+		board = findBoard(alg, b_id + 1, n_id + 1, l)
+		if board:
+			print "Found board"
 
-	
-	dumpBoard(board, alg)
+	if board == None:
+		print 'Running', alg, 'on board', b_id, 'with netlist', n_id, 'and maximum number of layers:', l
+		if args.depthfirstsearch:
+			board = createBoard(b_id, l)
+			dfs = DepthFirst(board, netlist)
+			board, netlist = dfs.solve()
+		else:
+			board = runAlgorithm(alg, b_id, netlist, l, args.recursion)
+			print '\nSolved', board.getScore()[0], 'nets with a total path length of:', board.getScore()[1]
+
+		
+		dumpBoard(board, alg)
 	if args.genetic:
 		gen = GeneticOpt('astar',board, gen, pop)
 		genBoard = gen.run()

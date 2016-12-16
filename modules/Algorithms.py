@@ -394,6 +394,7 @@ class AStarAllPaths(object):
 					cameFrom[goal] = [(cx, cy, cz)]
 				# path = self.reconstructPath(cameFrom, goal)
 				goalFound = True
+				return self.reconstructPath(cameFrom, goal)
 				# return path
 
 			openSet.remove((cx, cy, cz))
@@ -820,11 +821,12 @@ class GeneticOpt(object):
 		"""
 		newPop = []
 		for i, (board, score) in enumerate(population):
-			if i % 100 == 0:
+			if i % 10 == 0:
 				print '.',
 				sys.stdout.flush()
 			net = random.choice(board.nets)
 			oldPath = copy.deepcopy(net.path)
+			# print net.start_gate, net.end_gate
 			# print [len(net.path) for i,net in board.nets.iteritems()]
 			board.removeNetPath(net)
 			if self.alg_str == 'astar':
