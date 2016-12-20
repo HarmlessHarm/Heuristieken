@@ -548,18 +548,15 @@ class Dijkstra(object):
         path = [coord]
         self.explored[end] = val + 1
         found = False
-        while not found:
-            if start in self.board.getAllNeighbours(coord[0], coord[1], coord[2]):
-                found = True
-                nextCoord = start
-            else:
-                nextCoord = self.getLowestValue(coord)
-                if not nextCoord:
-                    self.net.path = False
-                    return self.net
-
+        
+        while not start in self.board.getAllNeighbours(coord[0], coord[1], coord[2]):
+            nextCoord = self.getLowestValue(coord)
+            if not nextCoord:
+                self.net.path = False
+                return self.net
             path.append(nextCoord)
             coord = nextCoord
+        path.append(start)
 
         return path
 
