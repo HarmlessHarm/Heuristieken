@@ -218,11 +218,8 @@ class AStarAllPaths(object):
             z_start] = self.manhattanCostEstimate(start, goal)
 
         bestLen = sys.maxint
-        # print goal
         goalFound = False
         while openSet != []:
-            # print openSet
-            # print len(cameFrom.keys())
             # Set currentNode to be the node in openset with the lowest fscore
             # (above -1)
             (cx, cy, cz) = openSet[0]
@@ -237,10 +234,8 @@ class AStarAllPaths(object):
                     cameFrom[goal].append((cx, cy, cz))
                 else:
                     cameFrom[goal] = [(cx, cy, cz)]
-                # path = self.reconstructPath(cameFrom, goal)
                 goalFound = True
                 return self.reconstructPath(cameFrom, goal)
-                # return path
 
             openSet.remove((cx, cy, cz))
 
@@ -484,8 +479,6 @@ class GeneticOpt(object):
             sortedPop = self.sortPop(newPop)
             print self.population[0][1]
             self.writeIterationResults(i)
-            # print [str(net.start_gate)+">"+str(net.end_gate)+":"+str(len(net.path)) for i, net in self.population[0][0].nets.iteritems()]
-            # print [score for l,score in self.population]
             killedPop = self.killPop(sortedPop)
             self.population = self.repopulate(killedPop)
         print "Improved from", self.base_score, 'to', self.population[0][1]
@@ -507,8 +500,6 @@ class GeneticOpt(object):
                 sys.stdout.flush()
             net = random.choice(board.nets)
             oldPath = copy.deepcopy(net.path)
-            # print net.start_gate, net.end_gate
-            # print [len(net.path) for i,net in board.nets.iteritems()]
             board.removeNetPath(net)
             if self.alg_str == 'astar':
                 astar = AStarAllPaths(board, net)
@@ -516,13 +507,10 @@ class GeneticOpt(object):
                 path = random.choice(paths)
 
                 lengths = [len(p) for p in paths]
-                # print max(lengths), min(lengths), len(paths)
             else:
                 bfs = BreadthFirst(net, board)
                 paths = []
                 paths = bfs.createPaths()
-                # for p in paths:
-                #   print p[0]
                 if len(paths) > 0:
                     path = random.choice(paths)
                 else:
@@ -531,7 +519,6 @@ class GeneticOpt(object):
 
             net.path = path
             if len(net.path) == 0:
-                # print '\nFailed planning a better path for net', i, '!'
                 net.path = oldPath
                 if not board.setNetPath(net):
                     print "OLD SHIT IS WRONG!!"
@@ -559,25 +546,3 @@ class GeneticOpt(object):
     		min_score = self.population[len(self.population)-1][1]
     		line = str(iteration) + ',' + str(max_score) + ',' + str(min_score) +'\n'
     		file.write(line)
-
-
-if __name__ == '__main__':
-    from helpers import *
-
-    netlist = [(15, 8), (3, 15), (15, 5), (20, 19), (23, 4), (5, 7), (1, 0), (15, 21), (3, 5), (7, 13), (3, 23), (23, 8), (22, 13), (15, 17),
-               (20, 10), (13, 18), (19, 2), (22, 11), (10, 4), (11, 24), (2, 20), (3, 4), (16, 9), (19, 5), (3, 0), (6, 14), (7, 9), (9, 13), (22, 16), (10, 7)]
-    board = runAlgorithm('astar', 0, netlist, 5, recursive=True)
-    print '\nold board score:', board.getScore()
-    # net = board.nets[0]
-    # print 'Planning new path from',net.start_gate, 'to', net.end_gate
-    # print 'old path', net.path
-    # board.removeNetPath(net)
-    # bfa = BreadthFirst(board.getElementAt(net.start_gate[0],net.start_gate[1],net.start_gate[2]).gate_id, board.getElementAt(net.end_gate[0],net.end_gate[1],net.end_gate[2]).gate_id, board)
-    # paths = bfa.solve()
-    # print 'found', len(paths), 'possible paths'
-    # print 'The first is:', paths[0]
-    hc = HillClimber(board)
-    newBoard = hc.solve()
-    print 'new board score:', newBoard.getScore()
-    # v = Visualizer(newBoard)
-    # v.start()

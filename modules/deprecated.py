@@ -145,15 +145,10 @@ class EasyPath(object):
             PHASE = 'LAT'
 
         while not self.checkAdjacent(curPos, end):
-            # if checkAdjacent(curPos, end):
-            # 	return net
 
             dX = end[0] - curPos[0]
             dY = end[1] - curPos[1]
 
-            # print dX, dY
-
-            # print curPos[2], PHASE, net.net_id
             # UP PHASE
             if PHASE == 'UP':
                 nextPos = self.goUp(curPos, board)
@@ -542,11 +537,6 @@ class HillClimber(object):
 
             random_net.path = random.choice(possibleNewPaths)
             print 'New path is:', random_net.path
-
-            # astar = AStar(self.board, random_net)
-            # print random_net.path
-            # random_net = astar.createPath(random_net.start_gate, random_net.end_gate, 'no_bias')
-            # print random_net.path
 
             if len(random_net.path) <= len(oldpath):
                 print 'selected path is smaller than or equal to original path'

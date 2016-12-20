@@ -49,7 +49,6 @@ class Visualizer(object):
         plt.show()
 
     def plotGates(self, ax, board):
-        # print self.board.gates
         for g in board.gates:
             x, y, z = board.gates[g].getCoordinates()
             ax.scatter(x, y, z, c='r', marker='s')

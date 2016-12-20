@@ -110,12 +110,10 @@ def findBoard(alg_str, boardN, netN, layerN, fileName=None, genetic=False, gen=N
 def runAlgorithm(alg_str, board_number, netlist, maxLayers, recursive=True):
     failedCount = 0
     board = createBoard(board_number, maxLayers)
-    # print 'call runAlgorithm with', board
     i = checkNetlist(alg_str, board, netlist)
     if not i is True and recursive:
         newNetlist = [netlist[i]] + netlist[:i] + netlist[i+1:]
         board = runAlgorithm(alg_str, board_number, newNetlist, maxLayers)
-    # dumpBoard(board, alg_str)
     return board
 
 
@@ -126,7 +124,6 @@ def checkNetlist(alg_str, board, netlist):
             print '.',
             sys.stdout.flush()
         if not checkPath(alg_str, board, start, end, i):
-            # print netlist
             return i
     return True
 
