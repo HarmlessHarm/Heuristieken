@@ -487,6 +487,8 @@ class AStarAllPaths(object):
 
     def returnMultiplePaths(self, cameFrom, path, paths):
         lastNode = path[-1]
+        if len(paths) == 100:
+            return paths
         if lastNode in cameFrom.keys():
             for nextNode in cameFrom[lastNode]:
                 new_path = path + [nextNode]
