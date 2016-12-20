@@ -145,15 +145,10 @@ class EasyPath(object):
             PHASE = 'LAT'
 
         while not self.checkAdjacent(curPos, end):
-            # if checkAdjacent(curPos, end):
-            # 	return net
 
             dX = end[0] - curPos[0]
             dY = end[1] - curPos[1]
 
-            # print dX, dY
-
-            # print curPos[2], PHASE, net.net_id
             # UP PHASE
             if PHASE == 'UP':
                 nextPos = self.goUp(curPos, board)
@@ -543,11 +538,6 @@ class HillClimber(object):
             random_net.path = random.choice(possibleNewPaths)
             print 'New path is:', random_net.path
 
-            # astar = AStar(self.board, random_net)
-            # print random_net.path
-            # random_net = astar.createPath(random_net.start_gate, random_net.end_gate, 'no_bias')
-            # print random_net.path
-
             if len(random_net.path) <= len(oldpath):
                 print 'selected path is smaller than or equal to original path'
                 if not self.board.setNetPath(random_net):
@@ -560,3 +550,49 @@ class HillClimber(object):
                     break
 
         return self.board
+
+
+def plotData():
+	
+	file = '../resources/config_1_gp133.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='red',antialiased=True)
+
+	file = '../resources/config_2_gp_188.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='blue',antialiased=True)
+	
+	file = '../resources/config_3_gp246.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='green',antialiased=True)
+
+	file = '../resources/config_4_gp246.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='yellow',antialiased=True)
+
+	file = '../resources/config_5_gp306.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='black',antialiased=True)
+
+	file = '../resources/config_6_gp_368.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='orange',antialiased=True)
+
+	red_patch = mpatches.Patch(color='red', label='Board 1, netlist 1')
+	patch1 = mpatches.Patch(color='blue', label='Board 1, netlist 2')
+	patch2 = mpatches.Patch(color='green', label='Board 1, netlist 3')
+	patch3 = mpatches.Patch(color='yellow', label='Board 2, netlist 4')
+	patch4 = mpatches.Patch(color='black', label='Board 2, netlist 5')
+	patch5 = mpatches.Patch(color='orange', label='Board 2, netlist 6')
+	plt.legend(handles=[red_patch, patch1,patch2,patch3,patch4,patch5])
+	plt.show()
+
+def readCSV(filename):
+	xs = []
+	ys = []
+	with open(filename, 'rb') as csvfile:
+		reader = csv.DictReader(csvfile)
+		for line in reader:
+			xs.append(line['iteration'])
+			ys.append(line[' max_score'])
+	return xs, ys

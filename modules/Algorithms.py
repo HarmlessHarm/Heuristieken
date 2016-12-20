@@ -4,15 +4,18 @@ from random import shuffle
 import sys
 from Objects import *
 from Visualizer import *
-from Sorter import *
 import copy
 import pprint
 import datetime
 import time
+import random
+
 
 class AStar(object):
 
-    """Initialize the A* algorithm with a board and net for which to plan a path, optional is a bias parameter (either 'vertical' or 'lateral')
+    """
+    Initialize the A* algorithm with a board and net for which to plan a path, 
+    optional is a bias parameter (either 'vertical' or 'lateral')
 
     Args:
         board (:obj: Board): The board on which to plan a path
@@ -100,7 +103,9 @@ class AStar(object):
         return []
 
     def distance(self, node):
-        """Distance to node, based on its neighbours and the layer it is in, the bias in distance added is set when the objact is instantiated
+        """
+        Distance to node, based on its neighbours and the layer it is in, 
+        the bias in distance added is set when the objact is instantiated
 
         Args:
             node (tuple): a coordinate
@@ -170,7 +175,9 @@ class AStar(object):
 
 class AStarAllPaths(object):
 
-    """Initialize the A* algorithm with a board and net for which to plan a path, optional is a bias parameter (either 'vertical' or 'lateral')
+    """
+    Initialize the A* algorithm with a board and net for which to plan a path, 
+    optional is a bias parameter (either 'vertical' or 'lateral')
 
     Args:
         board (:obj: Board): The board on which to plan a path
@@ -218,11 +225,8 @@ class AStarAllPaths(object):
             z_start] = self.manhattanCostEstimate(start, goal)
 
         bestLen = sys.maxint
-        # print goal
         goalFound = False
         while openSet != []:
-            # print openSet
-            # print len(cameFrom.keys())
             # Set currentNode to be the node in openset with the lowest fscore
             # (above -1)
             (cx, cy, cz) = openSet[0]
@@ -237,10 +241,8 @@ class AStarAllPaths(object):
                     cameFrom[goal].append((cx, cy, cz))
                 else:
                     cameFrom[goal] = [(cx, cy, cz)]
-                # path = self.reconstructPath(cameFrom, goal)
                 goalFound = True
                 return self.reconstructPath(cameFrom, goal)
-                # return path
 
             openSet.remove((cx, cy, cz))
 
@@ -267,7 +269,9 @@ class AStarAllPaths(object):
         return self.reconstructPath(cameFrom, goal)
 
     def distance(self, node):
-        """Distance to node, based on its neighbours and the layer it is in, the bias in distance added is set when the objact is instantiated
+        """
+        Distance to node, based on its neighbours and the layer it is in, 
+        the bias in distance added is set when the objact is instantiated
 
         Args:
             node (tuple): a coordinate
@@ -349,7 +353,8 @@ class Dijkstra(object):
         while not ended:
             newRemaining = {}
             for coord, val in self.remaining.iteritems():
-                if end in self.board.getAllNeighbours(coord[0], coord[1], coord[2]):
+                x, y, z = coord
+                if end in self.board.getAllNeighbours(x, y, z):
                     ended = True
                 rem = self.explore(coord, val)
                 if rem == False:
@@ -362,18 +367,19 @@ class Dijkstra(object):
                 return path
             self.remaining = newRemaining.copy()
 
-        coord = end
+        (x, y, z) = end
         path = [coord]
         self.explored[end] = val + 1
         found = False
-        
-        while not start in self.board.getAllNeighbours(coord[0], coord[1], coord[2]):
-            nextCoord = self.getLowestValue(coord)
+        # x,y,z = coord
+        while not start in self.board.getAllNeighbours(x, y, z):
+            nextCoord = self.getLowestValue((x, y, z))
             if not nextCoord:
                 self.net.path = False
                 return self.net
             path.append(nextCoord)
-            coord = nextCoord
+            (x, y, z) = nextCoord
+
         path.append(start)
 
         return path
@@ -454,12 +460,15 @@ class GeneticOpt(object):
         self.base_score = self.base_board.getScore()[1]
         self.population = self.initPop()
         ts = time.time()
-        self.resultFile = ('resources/' 
-        					+ datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-        					+ 'g' + str(self.max_generations)
-        					+ 'p' + str(self.max_population) + '.csv')
+        self.resultFile = ('resources/'
+                           +
+                           datetime.datetime.fromtimestamp(
+                               ts).strftime('%Y-%m-%d %H:%M:%S')
+                           + 'g' +
+                           str(self.max_generations)
+                           + 'p' + str(self.max_population) + '.csv')
         with open(self.resultFile, "a") as file:
-        	file.write("iteration, max_score, min_score \n")
+            file.write("iteration, max_score, min_score \n")
 
     def initPop(self):
         """Initialize the population
@@ -484,8 +493,6 @@ class GeneticOpt(object):
             sortedPop = self.sortPop(newPop)
             print self.population[0][1]
             self.writeIterationResults(i)
-            # print [str(net.start_gate)+">"+str(net.end_gate)+":"+str(len(net.path)) for i, net in self.population[0][0].nets.iteritems()]
-            # print [score for l,score in self.population]
             killedPop = self.killPop(sortedPop)
             self.population = self.repopulate(killedPop)
         print "Improved from", self.base_score, 'to', self.population[0][1]
@@ -502,13 +509,11 @@ class GeneticOpt(object):
         """
         newPop = []
         for i, (board, score) in enumerate(population):
-            if i % 10 == 0:
+            if i % (len(population)/10) == 0:
                 print '.',
                 sys.stdout.flush()
             net = random.choice(board.nets)
             oldPath = copy.deepcopy(net.path)
-            # print net.start_gate, net.end_gate
-            # print [len(net.path) for i,net in board.nets.iteritems()]
             board.removeNetPath(net)
             if self.alg_str == 'astar':
                 astar = AStarAllPaths(board, net)
@@ -516,13 +521,10 @@ class GeneticOpt(object):
                 path = random.choice(paths)
 
                 lengths = [len(p) for p in paths]
-                # print max(lengths), min(lengths), len(paths)
             else:
                 bfs = BreadthFirst(net, board)
                 paths = []
                 paths = bfs.createPaths()
-                # for p in paths:
-                #   print p[0]
                 if len(paths) > 0:
                     path = random.choice(paths)
                 else:
@@ -531,7 +533,6 @@ class GeneticOpt(object):
 
             net.path = path
             if len(net.path) == 0:
-                # print '\nFailed planning a better path for net', i, '!'
                 net.path = oldPath
                 if not board.setNetPath(net):
                     print "OLD SHIT IS WRONG!!"
@@ -554,30 +555,9 @@ class GeneticOpt(object):
         return copy.deepcopy(pop) + copy.deepcopy(pop)
 
     def writeIterationResults(self, iteration):
-    	with open(self.resultFile, "a") as file:
-    		max_score = self.population[0][1]
-    		min_score = self.population[len(self.population)-1][1]
-    		line = str(iteration) + ',' + str(max_score) + ',' + str(min_score) +'\n'
-    		file.write(line)
-
-
-if __name__ == '__main__':
-    from helpers import *
-
-    netlist = [(15, 8), (3, 15), (15, 5), (20, 19), (23, 4), (5, 7), (1, 0), (15, 21), (3, 5), (7, 13), (3, 23), (23, 8), (22, 13), (15, 17),
-               (20, 10), (13, 18), (19, 2), (22, 11), (10, 4), (11, 24), (2, 20), (3, 4), (16, 9), (19, 5), (3, 0), (6, 14), (7, 9), (9, 13), (22, 16), (10, 7)]
-    board = runAlgorithm('astar', 0, netlist, 5, recursive=True)
-    print '\nold board score:', board.getScore()
-    # net = board.nets[0]
-    # print 'Planning new path from',net.start_gate, 'to', net.end_gate
-    # print 'old path', net.path
-    # board.removeNetPath(net)
-    # bfa = BreadthFirst(board.getElementAt(net.start_gate[0],net.start_gate[1],net.start_gate[2]).gate_id, board.getElementAt(net.end_gate[0],net.end_gate[1],net.end_gate[2]).gate_id, board)
-    # paths = bfa.solve()
-    # print 'found', len(paths), 'possible paths'
-    # print 'The first is:', paths[0]
-    hc = HillClimber(board)
-    newBoard = hc.solve()
-    print 'new board score:', newBoard.getScore()
-    # v = Visualizer(newBoard)
-    # v.start()
+        with open(self.resultFile, "a") as file:
+            max_score = self.population[0][1]
+            min_score = self.population[len(self.population)-1][1]
+            line = str(iteration) + ',' + str(max_score) + \
+                ',' + str(min_score) + '\n'
+            file.write(line)

@@ -22,8 +22,8 @@ class Visualizer(object):
             ax1 = fig.add_subplot(121, projection='3d')
 
         ax1.set_zlim([0, self.board.z_dim])
-        ax1.set_title("Absolute score: " + str(self.board.getScore()
-                                               [1]) + "\n Relative score: " + str(self.board.getRelativeScore()))
+        ax1.set_title("Absolute score: " + str(self.board.getScore()[1]) + "\n \
+                        Relative score: " + str(self.board.getRelativeScore()))
 
         # self.plotGridLines(ax1, board)
         self.plotGates(ax1, self.board)
@@ -36,8 +36,8 @@ class Visualizer(object):
         if self.board2 is not False:
             ax2 = fig.add_subplot(122, projection='3d')
             ax2.set_zlim([0, self.board2.z_dim])
-            ax2.set_title("Absolute score: " + str(self.board2.getScore()
-                                                   [1]) + "\n Relative score: " + str(self.board2.getRelativeScore()))
+            ax2.set_title("Absolute score: " + str(self.board2.getScore()[1]) +
+                          "\n Relative score: " + str(self.board2.getRelativeScore()))
 
             # self.plotGridLines(ax2, board2)
             self.plotGates(ax2, self.board2)
@@ -50,7 +50,6 @@ class Visualizer(object):
         plt.show()
 
     def plotGates(self, ax, board):
-        # print self.board.gates
         for g in board.gates:
             x, y, z = board.gates[g].getCoordinates()
             ax.scatter(x, y, z, c='r', marker='s')
@@ -72,6 +71,7 @@ class Visualizer(object):
             if net.path != False:
                 for i, (x, y, z) in enumerate(net.path[:-1]):
                     (nx, ny, nz) = net.path[i+1]
+<<<<<<< HEAD
                     ax.plot(
                         [x, nx], [y, ny], [z, nz], color=color, alpha=0.8, linewidth=2.0)
 
@@ -154,3 +154,7 @@ if __name__ == '__main__':
     # print 'Failed planning paths for: ', failedCount, 'nets'
     # v = Visualizer(board)
     # v.start()
+=======
+                    ax.plot([x, nx], [y, ny], [z, nz], color=color, alpha=0.8,
+                            linewidth=2.0)
+>>>>>>> a6fcaa575fcd4a257f82c83f24ac0684510c8936
