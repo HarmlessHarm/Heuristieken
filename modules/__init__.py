@@ -5,5 +5,5 @@ from Visualizer import *
 from Sorter import *
 from helpers import *
 
-__all__ = ["Board", "Net", "Gate", "EasyPath", "AStar", "Dijkstra", "runAlgorithm", "Visualizer", "Sorter", "readNetlists", "createBoard", "GeneticOpt", "checkNetlist", "dumpBoard", "findBoard", "readBoard", "DepthFirst"]
-
+__all__ = ["Board", "Net", "Gate", "EasyPath", "AStar", "Dijkstra", "runAlgorithm", "Visualizer", "Sorter",
+           "readNetlists", "createBoard", "GeneticOpt", "checkNetlist", "dumpBoard", "findBoard", "readBoard", "DepthFirst"]

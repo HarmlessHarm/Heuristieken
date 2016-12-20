@@ -4,6 +4,7 @@ import pprint
 import copy
 import numpy as np
 
+
 class Board(object):
 
     """
@@ -64,7 +65,7 @@ class Board(object):
     def setElementAt(self, obj,  x, y, z=0):
         """
         Puts an object in a cell at a certain coordinate if the cell is empty.
-    
+
         This function can be used to set Gate and Net objects.
 
         Args:
@@ -119,7 +120,7 @@ class Board(object):
         for dif_tuple in zip(xs, ys, zs):
             (nx, ny, nz) = [sum(x) for x in zip(xyz, dif_tuple)]
             if 0 <= nx < self.x_dim and 0 <= ny < self.y_dim and \
-                0 <= nz < self.z_dim and xyz != (nx, ny, nz):
+                    0 <= nz < self.z_dim and xyz != (nx, ny, nz):
                 neighbours.append((nx, ny, nz))
         return neighbours
 
@@ -213,7 +214,7 @@ class Board(object):
         toremove = net.path[1:-1]
         for i, (x, y, z) in enumerate(toremove):
             if not self.setElementAt(net, x, y, z):
-                print 'False @:',(x,y,z)
+                print 'False @:', (x, y, z)
                 if i != 0:
                     for coord in toremove[:i]:
                         self.removeElementAt(coord)
@@ -240,6 +241,7 @@ class Board(object):
         else:
             return False
 
+
 class Gate(object):
 
     """ 
@@ -262,6 +264,7 @@ class Gate(object):
         Returns coordinates of gate
         """
         return (self.x, self.y, self.z)
+
 
 class Net(object):
 
