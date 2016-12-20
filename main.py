@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from modules import *
 import argparse
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -54,17 +55,21 @@ if __name__ == '__main__':
     else:
         alg = 'astar'
 
+   	
     if args.genetic:
+    	default = int(math.ceil(len(netlist)*math.log(len(netlist)) + len(netlist)))
         if args.generations == None:
-            gen = 50
+            gen = default
         else:
             gen = args.generations
         if args.population == None:
-            pop = 100
+            pop = default
         else:
             pop = args.population
+        print 'Using genetic optimization with', pop, 'population and', gen , 'generations.'
     # netlist = [(24, 12), (18, 13), (2, 5), (0, 15), (1, 21), (22, 10), (11, 12), (15, 13), (15, 10), (22, 18), (3, 0), (13, 19), (22, 8), (15, 4), (16, 21), (8, 18), (12, 20), (5, 17), (10, 4), (14, 1), (12, 13), (8, 23), (4, 0), (4, 3), (10, 20), (11, 7), (10, 5), (18, 21), (9, 23), (19, 9), (11, 15), (17, 11), (19, 8), (14, 6), (23, 20), (14, 5), (1, 22), (6, 9), (13, 11), (14, 7)]
 
+    board = None
     if args.read:
         board = findBoard(alg, b_id + 1, n_id + 1, l)
         if board:
