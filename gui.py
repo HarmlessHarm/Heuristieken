@@ -1,7 +1,7 @@
+# from __future__ import 
 from Tkinter import *
 import tkMessageBox
 import os
-# import main
 
 def runMain():
 	b = board.get()
@@ -16,8 +16,45 @@ def runMain():
 		command += ' -r'
 	if visual.get():
 		command += ' -v'
+	if read.get():
+		command += ' -R'
 	print 'running "'+command+'"'
 	os.system(command)
+
+def gridFrame(row, column):
+	frame = Frame(container, pady=5, padx=10)
+	frame.grid(row=row, column=column)
+	return frame
+
+def label(parent, text):
+	Label(parent, text=text, font=FONT, padx=5).pack(side=LEFT)
+
+def optionMenu(parent, text, values):
+	label(parent, text)
+	var = StringVar()
+	var.set(values[0])
+	optMenu = OptionMenu(parent, var, *values)
+	optMenu.config(font=FONT)
+	optMenu.pack()
+	opts = optMenu.nametowidget(optMenu.menuname) 
+	opts.configure(font=FONT)
+	return var
+
+def entry(parent, text, default, width):
+	label(parent, text)
+	var = StringVar()
+	var.set(default)
+	field = Entry(parent, textvariable=var, width=width, font=FONT)
+	field.pack(side=RIGHT)
+	return var
+
+def checkbox(parent, text, default=1):
+	var = IntVar()
+	var.set(default)
+	field = Checkbutton(parent, text=text, variable=var, font=FONT)
+	field.pack()
+	return var
+
 
 TITLEFONT = ('Helvetica', '14')
 FONT = ('Helvetica', '10')
@@ -26,113 +63,47 @@ root = Tk()
 root.config(pady=15, padx=20)
 root.minsize(width=750, height=300)
 
-introLabel = Label(root, text='Welkom bij de super awesome netlist solver', font=TITLEFONT)
+introLabel = Label(root, text='Chips & Circuits by Team KI', font=TITLEFONT)
 introLabel.pack()
 
 container = Frame(root, pady=10)
 container.pack()
 
 # Board
-boardFrame = Frame(container, pady=5, padx=10)
-boardFrame.grid(row=0, column=0)
-
-boardLabel = Label(boardFrame, text='Board', font=FONT, padx=5)
-boardLabel.pack( side = LEFT)
-
-board = StringVar()
-board.set('0')
-boardOptions = OptionMenu(boardFrame, board, '0', '1')
-boardOptions.config(font=FONT)
-boardOptions.pack()
-boardOps = boardOptions.nametowidget(boardOptions.menuname) 
-boardOps.configure(font=FONT)
-
+boardFrame = gridFrame(0,0)
+board = optionMenu(boardFrame, 'Board', ['0', '1'])
 
 # Netlist
-netlistFrame = Frame(container, pady=5, padx=10)
-netlistFrame.grid(row=1, column=0)
-
-netlistLabel = Label(netlistFrame, text='Netlist', font=FONT, padx=5)
-netlistLabel.pack(side=LEFT)
-
-netlist = StringVar()
-netlist.set('0')
-netlistOptions = OptionMenu(netlistFrame, netlist, '0', '1', '2', '3', '4', '5')
-netlistOptions.pack()
-netlistOptions.config(font=FONT)
-netOps = netlistOptions.nametowidget(netlistOptions.menuname) 
-netOps.configure(font=FONT)
-
-
+netlistFrame = gridFrame(1, 0)
+netlist = optionMenu(netlistFrame, 'Netlist', ['0', '1', '2', '3', '4', '5'])
 
 # Layers
-layersFrame = Frame(container, pady=5, padx=10)
-layersFrame.grid(row=2, column=0)
-
-layersLabel = Label(layersFrame, text="Layers", font=FONT, padx=5)
-layersLabel.pack(side=LEFT)
-layers = StringVar()
-layers.set('5')
-layersField = Entry(layersFrame, textvariable=layers, width=3, font=FONT)
-layersField.pack(side=RIGHT)
+layersFrame = gridFrame(2, 0)
+layers = entry(layersFrame, 'Layers', '5', 3)
 
 # Recursive
-recursiveFrame = Frame(container, pady=5, padx=10)
-recursiveFrame.grid(row=0, column=1)
-
-recursive = IntVar()
-recursive.set(1)
-recursiveCheck = Checkbutton(recursiveFrame, text='Recursive',variable=recursive, font=FONT)
-recursiveCheck.pack()
+recursiveFrame = gridFrame(0, 1)
+recursive = checkbox(recursiveFrame, 'Recursive')
 
 # Visual
-visualFrame = Frame(container, pady=5, padx=10)
-visualFrame.grid(row=1, column=1)
-
-visual = IntVar()
-visual.set(1)
-visualCheck = Checkbutton(visualFrame, text='Visual', variable=visual, font=FONT)
-visualCheck.pack(side=LEFT)
+visualFrame = gridFrame(1, 1)
+visual = checkbox(visualFrame, 'Visual')
 
 # Read File
-readFrame = Frame(container, pady=5, padx=10)
-readFrame.grid(row=2, column=1)
-
-read = IntVar()
-read.set(1)
-readCheck = Checkbutton(readFrame, text='Read file', variable=read, font=FONT)
-readCheck.pack(side=LEFT)
+readFrame = gridFrame(2, 1)
+read = checkbox(readFrame, 'Read file', 0)
 
 # Genetic
-geneticFrame = Frame(container, pady=5, padx=10)
-geneticFrame.grid(row=0, column=2)
-
-genetic = IntVar()
-genetic.set(1)
-geneticCheck = Checkbutton(geneticFrame, text='Genetic', variable=genetic, font=FONT)
-geneticCheck.pack()
+geneticFrame = gridFrame(0, 2)
+genetic = checkbox(geneticFrame, 'Genetic')
 
 # Generations
-genFrame = Frame(container, pady=5, padx=10)
-genFrame.grid(row=1, column=2)
-
-genLabel = Label(genFrame, text="Gens", font=FONT, padx=5)
-genLabel.pack(side=LEFT)
-gen = StringVar()
-gen.set('50')
-genField = Entry(genFrame, textvariable=gen, width=4, font=FONT)
-genField.pack()
+genFrame = gridFrame(1, 2)
+gen = entry(genFrame, 'Gens', '50', 4)
 
 # Population
-popFrame = Frame(container, pady=5, padx=10)
-popFrame.grid(row=2, column=2)
-
-popLabel = Label(popFrame, text="Pop", font=FONT, padx=5)
-popLabel.pack(side=LEFT)
-pop = StringVar()
-pop.set('100')
-popField = Entry(popFrame, textvariable=pop, width=5, font=FONT)
-popField.pack()
+popFrame = gridFrame(2, 2)
+pop = entry(popFrame, 'Pop', '100', 5)
 
 run = Button(root, text='RUN', command=runMain, font=FONT)
 run.pack(side=BOTTOM)
