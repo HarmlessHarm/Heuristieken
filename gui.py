@@ -1,14 +1,17 @@
 from Tkinter import *
 import tkMessageBox
 import os
+import main
 
 def runMain():
 	b = board.get()
 	n = netlist.get()
 	l = layers.get()
+	g = gen.get()
+	p = pop.get()
 	command = 'python main.py -b ' + b + ' -n ' + n + ' -l ' + l
 	if genetic.get():
-		command += ' -G'
+		command += ' -G -g ' + g + ' -p ' + p
 	if recursive.get():
 		command += ' -r'
 	if visual.get():
@@ -73,6 +76,15 @@ recursive.set(1)
 recursiveCheck = Checkbutton(recursiveFrame, text='Recursive',variable=recursive)
 recursiveCheck.pack()
 
+# Visual
+visualFrame = Frame(frameRight)
+visualFrame.pack()
+
+visual = IntVar()
+visual.set(1)
+visualCheck = Checkbutton(visualFrame, text='Visual', variable=visual)
+visualCheck.pack()
+
 # Genetic
 geneticFrame = Frame(frameRight)
 geneticFrame.pack()
@@ -82,13 +94,27 @@ genetic.set(1)
 geneticCheck = Checkbutton(geneticFrame, text='Genetic', variable=genetic)
 geneticCheck.pack()
 
-visualFrame = Frame(frameRight)
-visualFrame.pack()
+# Generations
+genFrame = Frame(frameRight)
+genFrame.pack()
 
-visual = IntVar()
-visual.set(1)
-visualCheck = Checkbutton(visualFrame, text='Visual', variable=visual)
-visualCheck.pack()
+genLabel = Label(genFrame, text="Generations")
+genLabel.pack(side=LEFT)
+gen = StringVar()
+gen.set('50')
+genField = Entry(genFrame, textvariable=gen, width=5)
+genField.pack()
+
+# Population
+popFrame = Frame(frameRight)
+popFrame.pack()
+
+popLabel = Label(popFrame, text="Population")
+popLabel.pack(side=LEFT)
+pop = StringVar()
+pop.set('100')
+popField = Entry(popFrame, textvariable=pop, width=5)
+popField.pack()
 
 run = Button(root, text='RUN', command=runMain)
 run.pack(side=BOTTOM)
