@@ -1,59 +1,65 @@
-# from __future__ import 
+# from __future__ import
 from Tkinter import *
 import tkMessageBox
 import os
 
+
 def runMain():
-	b = board.get()
-	n = netlist.get()
-	l = layers.get()
-	g = gen.get()
-	p = pop.get()
-	command = 'python main.py -b ' + b + ' -n ' + n + ' -l ' + l
-	if genetic.get():
-		command += ' -G -g ' + g + ' -p ' + p
-	if recursive.get():
-		command += ' -r'
-	if visual.get():
-		command += ' -v'
-	if read.get():
-		command += ' -R'
-	print 'running "'+command+'"'
-	os.system(command)
+    b = board.get()
+    n = netlist.get()
+    l = layers.get()
+    g = gen.get()
+    p = pop.get()
+    command = 'python main.py -b ' + b + ' -n ' + n + ' -l ' + l
+    if genetic.get():
+        command += ' -G -g ' + g + ' -p ' + p
+    if recursive.get():
+        command += ' -r'
+    if visual.get():
+        command += ' -v'
+    if read.get():
+        command += ' -R'
+    print 'running "'+command+'"'
+    os.system(command)
+
 
 def gridFrame(row, column):
-	frame = Frame(container, pady=5, padx=10)
-	frame.grid(row=row, column=column)
-	return frame
+    frame = Frame(container, pady=5, padx=10)
+    frame.grid(row=row, column=column)
+    return frame
+
 
 def label(parent, text):
-	Label(parent, text=text, font=FONT, padx=5).pack(side=LEFT)
+    Label(parent, text=text, font=FONT, padx=5).pack(side=LEFT)
+
 
 def optionMenu(parent, text, values):
-	label(parent, text)
-	var = StringVar()
-	var.set(values[0])
-	optMenu = OptionMenu(parent, var, *values)
-	optMenu.config(font=FONT)
-	optMenu.pack()
-	opts = optMenu.nametowidget(optMenu.menuname) 
-	opts.configure(font=FONT)
-	return var
+    label(parent, text)
+    var = StringVar()
+    var.set(values[0])
+    optMenu = OptionMenu(parent, var, *values)
+    optMenu.config(font=FONT)
+    optMenu.pack()
+    opts = optMenu.nametowidget(optMenu.menuname)
+    opts.configure(font=FONT)
+    return var
+
 
 def entry(parent, text, default, width):
-	label(parent, text)
-	var = StringVar()
-	var.set(default)
-	field = Entry(parent, textvariable=var, width=width, font=FONT)
-	field.pack(side=RIGHT)
-	return var
+    label(parent, text)
+    var = StringVar()
+    var.set(default)
+    field = Entry(parent, textvariable=var, width=width, font=FONT)
+    field.pack(side=RIGHT)
+    return var
+
 
 def checkbox(parent, text, default=1):
-	var = IntVar()
-	var.set(default)
-	field = Checkbutton(parent, text=text, variable=var, font=FONT)
-	field.pack()
-	return var
+    var = IntVar()
+    var.set(default)
+    field = Checkbutton(parent, text=text, variable=var, font=FONT)
+    field.pack()
+    return var
 
 
 TITLEFONT = ('Helvetica', '14')
@@ -70,7 +76,7 @@ container = Frame(root, pady=10)
 container.pack()
 
 # Board
-boardFrame = gridFrame(0,0)
+boardFrame = gridFrame(0, 0)
 board = optionMenu(boardFrame, 'Board', ['0', '1'])
 
 # Netlist

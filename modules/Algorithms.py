@@ -10,9 +10,12 @@ import datetime
 import time
 import random
 
+
 class AStar(object):
 
-    """Initialize the A* algorithm with a board and net for which to plan a path, optional is a bias parameter (either 'vertical' or 'lateral')
+    """
+    Initialize the A* algorithm with a board and net for which to plan a path, 
+    optional is a bias parameter (either 'vertical' or 'lateral')
 
     Args:
         board (:obj: Board): The board on which to plan a path
@@ -100,7 +103,9 @@ class AStar(object):
         return []
 
     def distance(self, node):
-        """Distance to node, based on its neighbours and the layer it is in, the bias in distance added is set when the objact is instantiated
+        """
+        Distance to node, based on its neighbours and the layer it is in, 
+        the bias in distance added is set when the objact is instantiated
 
         Args:
             node (tuple): a coordinate
@@ -170,7 +175,9 @@ class AStar(object):
 
 class AStarAllPaths(object):
 
-    """Initialize the A* algorithm with a board and net for which to plan a path, optional is a bias parameter (either 'vertical' or 'lateral')
+    """
+    Initialize the A* algorithm with a board and net for which to plan a path, 
+    optional is a bias parameter (either 'vertical' or 'lateral')
 
     Args:
         board (:obj: Board): The board on which to plan a path
@@ -262,7 +269,9 @@ class AStarAllPaths(object):
         return self.reconstructPath(cameFrom, goal)
 
     def distance(self, node):
-        """Distance to node, based on its neighbours and the layer it is in, the bias in distance added is set when the objact is instantiated
+        """
+        Distance to node, based on its neighbours and the layer it is in, 
+        the bias in distance added is set when the objact is instantiated
 
         Args:
             node (tuple): a coordinate
@@ -344,7 +353,8 @@ class Dijkstra(object):
         while not ended:
             newRemaining = {}
             for coord, val in self.remaining.iteritems():
-                if end in self.board.getAllNeighbours(coord[0], coord[1], coord[2]):
+                x, y, z = coord
+                if end in self.board.getAllNeighbours(x, y, z):
                     ended = True
                 rem = self.explore(coord, val)
                 if rem == False:
@@ -357,18 +367,19 @@ class Dijkstra(object):
                 return path
             self.remaining = newRemaining.copy()
 
-        coord = end
+        (x, y, z) = end
         path = [coord]
         self.explored[end] = val + 1
         found = False
-        
-        while not start in self.board.getAllNeighbours(coord[0], coord[1], coord[2]):
-            nextCoord = self.getLowestValue(coord)
+        # x,y,z = coord
+        while not start in self.board.getAllNeighbours(x, y, z):
+            nextCoord = self.getLowestValue((x, y, z))
             if not nextCoord:
                 self.net.path = False
                 return self.net
             path.append(nextCoord)
-            coord = nextCoord
+            (x, y, z) = nextCoord
+
         path.append(start)
 
         return path
@@ -449,12 +460,15 @@ class GeneticOpt(object):
         self.base_score = self.base_board.getScore()[1]
         self.population = self.initPop()
         ts = time.time()
-        self.resultFile = ('resources/' 
-        					+ datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-        					+ 'g' + str(self.max_generations)
-        					+ 'p' + str(self.max_population) + '.csv')
+        self.resultFile = ('resources/'
+                           +
+                           datetime.datetime.fromtimestamp(
+                               ts).strftime('%Y-%m-%d %H:%M:%S')
+                           + 'g' +
+                           str(self.max_generations)
+                           + 'p' + str(self.max_population) + '.csv')
         with open(self.resultFile, "a") as file:
-        	file.write("iteration, max_score, min_score \n")
+            file.write("iteration, max_score, min_score \n")
 
     def initPop(self):
         """Initialize the population
@@ -541,8 +555,9 @@ class GeneticOpt(object):
         return copy.deepcopy(pop) + copy.deepcopy(pop)
 
     def writeIterationResults(self, iteration):
-    	with open(self.resultFile, "a") as file:
-    		max_score = self.population[0][1]
-    		min_score = self.population[len(self.population)-1][1]
-    		line = str(iteration) + ',' + str(max_score) + ',' + str(min_score) +'\n'
-    		file.write(line)
+        with open(self.resultFile, "a") as file:
+            max_score = self.population[0][1]
+            min_score = self.population[len(self.population)-1][1]
+            line = str(iteration) + ',' + str(max_score) + \
+                ',' + str(min_score) + '\n'
+            file.write(line)

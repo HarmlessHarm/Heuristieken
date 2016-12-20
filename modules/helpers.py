@@ -49,7 +49,8 @@ def createBoard(i, layers):
         return b
 
 
-def dumpBoard(board, alg_str, fileName=None, genetic=False, gen=None, pop=None):
+def dumpBoard(board, alg_str, fileName=None, genetic=False,
+              gen=None, pop=None):
     netLen = len(board.nets)
     if board.y_dim == 13:
         boardN = 1
@@ -93,7 +94,8 @@ def readBoard(fileName):
     return board
 
 
-def findBoard(alg_str, boardN, netN, layerN, fileName=None, genetic=False, gen=None, pop=None):
+def findBoard(alg_str, boardN, netN, layerN, fileName=None, genetic=False,
+              gen=None, pop=None):
     if fileName == None:
         fileName = 'board_' + \
             str(alg_str) + '_b' + str(boardN) + '_n' + \
