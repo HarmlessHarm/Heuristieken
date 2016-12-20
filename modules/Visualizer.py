@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import matplotlib as mpl
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 import numpy as np
-
+import csv
 
 class Visualizer(object):
 
@@ -70,5 +71,90 @@ class Visualizer(object):
             if net.path != False:
                 for i, (x, y, z) in enumerate(net.path[:-1]):
                     (nx, ny, nz) = net.path[i+1]
+<<<<<<< HEAD
+                    ax.plot(
+                        [x, nx], [y, ny], [z, nz], color=color, alpha=0.8, linewidth=2.0)
+
+def plotData():
+	
+	file = '../resources/config_1_gp133.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='red',antialiased=True)
+
+	file = '../resources/config_2_gp_188.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='blue',antialiased=True)
+	
+	file = '../resources/config_3_gp246.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='green',antialiased=True)
+
+	file = '../resources/config_4_gp246.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='yellow',antialiased=True)
+
+	file = '../resources/config_5_gp306.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='black',antialiased=True)
+
+	file = '../resources/config_6_gp_368.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='orange',antialiased=True)
+
+	red_patch = mpatches.Patch(color='red', label='Board 1, netlist 1')
+	patch1 = mpatches.Patch(color='blue', label='Board 1, netlist 2')
+	patch2 = mpatches.Patch(color='green', label='Board 1, netlist 3')
+	patch3 = mpatches.Patch(color='yellow', label='Board 2, netlist 4')
+	patch4 = mpatches.Patch(color='black', label='Board 2, netlist 5')
+	patch5 = mpatches.Patch(color='orange', label='Board 2, netlist 6')
+	plt.legend(handles=[red_patch, patch1,patch2,patch3,patch4,patch5])
+	plt.show()
+
+def readCSV(filename):
+	xs = []
+	ys = []
+	with open(filename, 'rb') as csvfile:
+		reader = csv.DictReader(csvfile)
+		for line in reader:
+			xs.append(line['iteration'])
+			ys.append(line[' max_score'])
+	return xs, ys
+
+if __name__ == '__main__':
+	plotData()
+    # b = createBoard(1)
+    # alg = AStar(b)
+    # net = Net(0, 1, 0)
+    # path = alg.aStar(b.gates[0],b.gates[1])
+    # net.path = path
+    # b.nets[0] = net
+    # b.setNetPath(net)
+    # v = Visualizer(b)
+    # v.start()
+    # netlists = readNetlists()
+    # board = createBoard(30)
+    # failedCount = 0
+    # netlist = netlists[0]
+    # # shuffle(netlist)
+    # for i, (start, end) in enumerate(netlist):
+    #     net = Net(board.gates[start], board.gates[end], 1)
+    #     print "Planning the path", i, "from gate ", start, board.gates[start], " to gate ", end, board.gates[end]
+    #     alg = AStar(board)
+    #     plannedPath = alg.aStar(net.start_gate, net.end_gate)
+    #     if not plannedPath:
+    #         print 'Failed planning a path for net', i, '!'
+    #         failedCount += 1
+    #         continue
+
+    #     net.path = plannedPath
+    #     board.nets[i] = net
+    #     if not board.setNetPath(net):
+    #         print 'Path is planned over an occupied position!'
+    #         break
+    # print 'Failed planning paths for: ', failedCount, 'nets'
+    # v = Visualizer(board)
+    # v.start()
+=======
                     ax.plot([x, nx], [y, ny], [z, nz], color=color, alpha=0.8,
                             linewidth=2.0)
+>>>>>>> a6fcaa575fcd4a257f82c83f24ac0684510c8936

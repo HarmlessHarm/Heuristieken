@@ -550,3 +550,49 @@ class HillClimber(object):
                     break
 
         return self.board
+
+
+def plotData():
+	
+	file = '../resources/config_1_gp133.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='red',antialiased=True)
+
+	file = '../resources/config_2_gp_188.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='blue',antialiased=True)
+	
+	file = '../resources/config_3_gp246.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='green',antialiased=True)
+
+	file = '../resources/config_4_gp246.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='yellow',antialiased=True)
+
+	file = '../resources/config_5_gp306.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='black',antialiased=True)
+
+	file = '../resources/config_6_gp_368.csv'
+	xs, ys = readCSV(file)
+	plt.plot(xs,ys, linewidth=1, color='orange',antialiased=True)
+
+	red_patch = mpatches.Patch(color='red', label='Board 1, netlist 1')
+	patch1 = mpatches.Patch(color='blue', label='Board 1, netlist 2')
+	patch2 = mpatches.Patch(color='green', label='Board 1, netlist 3')
+	patch3 = mpatches.Patch(color='yellow', label='Board 2, netlist 4')
+	patch4 = mpatches.Patch(color='black', label='Board 2, netlist 5')
+	patch5 = mpatches.Patch(color='orange', label='Board 2, netlist 6')
+	plt.legend(handles=[red_patch, patch1,patch2,patch3,patch4,patch5])
+	plt.show()
+
+def readCSV(filename):
+	xs = []
+	ys = []
+	with open(filename, 'rb') as csvfile:
+		reader = csv.DictReader(csvfile)
+		for line in reader:
+			xs.append(line['iteration'])
+			ys.append(line[' max_score'])
+	return xs, ys
