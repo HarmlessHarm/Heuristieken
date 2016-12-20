@@ -4,11 +4,11 @@ from random import shuffle
 import sys
 from Objects import *
 from Visualizer import *
-from Sorter import *
 import copy
 import pprint
 import datetime
 import time
+import random
 
 class AStar(object):
 
@@ -502,7 +502,7 @@ class GeneticOpt(object):
         """
         newPop = []
         for i, (board, score) in enumerate(population):
-            if i % 10 == 0:
+            if i % (population/10) == 0:
                 print '.',
                 sys.stdout.flush()
             net = random.choice(board.nets)
