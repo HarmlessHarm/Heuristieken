@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+from Objects import *
+from AStar import *
+from Dijkstra import *
 import json
 import ast
 import os
 import numpy as np
-from Objects import *
-from Algorithms import *
 import sys
 # Try using cpickle lib for efficiency
 try:
@@ -140,11 +141,11 @@ def checkPath(alg_str, board, start, end, i):
         net = Net(start, end, i)
         alg = Dijkstra(board, net)
         net.path = alg.createPath()
-    elif alg_str == 'simple':
-        net = Net(start, end, i)
-        alg = EasyPath(board, net)
-        net.path = alg.createPath()
-        board.removeNetPath(net)
+    # elif alg_str == 'simple':
+    #     net = Net(start, end, i)
+    #     alg = EasyPath(board, net)
+    #     net.path = alg.createPath()
+    #     board.removeNetPath(net)
 
     if net.path == []:
         print '\nFailed planning a path for net', i, '!'

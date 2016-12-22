@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from modules import *
 import matplotlib.pyplot as plt
+import numpy as np
 import copy
-
+import time
+import random
 
 def randomSamples(iterations, bi, ni):
     netlists = readNetlists()
@@ -44,18 +46,83 @@ def genetic(board, gens, pop):
     dumpBoard(genBoard, 'astar', genetic=True, gen=gens, pop=pop)
     return genBoard
 
+def randomNet(board):
+    keys = board.gates.keys()
+    g1 = random.choice(keys)
+    keys.remove(g1)
+    g2 = random.choice(keys)
+    return g1, g2
 
-# board = findBoard('astar', 1, 1, 10)
-# if not board:
-board = astar('astar', 0, 0)
-# genBoard = findBoard('astar' , 1, 1, 10, genetic=True, gen=100,pop=100)
-# if not genBoard:
-# nb = copy.deepcopy(board)
-genBoard = genetic(board, 50, 1000)
-# print genBoard
+def algorithmBenchmark(n):
+    board = createBoard(1, 10)
+    astarStats = {}
+    astarStart = time.time()
+    for i in range(n):
+        g1, g2 = randomNet(board)
+        net = Net(g1, g2, 0)
+        astar = AStar(board, net, bias=False)
 
-v = Visualizer(board)
-v.start()
+        pathStart = time.time()
+        net.path = astar.createPath()
+        pathEnd = time.time()
+        pathTime = pathEnd - pathStart
 
-vg = Visualizer(genBoard)
-vg.start()
+        coord1 = board.gates[g1].getCoordinates()
+        coord2 = board.gates[g2].getCoordinates()
+        manHatScore = abs(coord1[0] - coord2[0]) + abs(coord1[1] - coord2[1])
+
+        if manHatScore in astarStats.keys():
+            astarStats[manHatScore].append(pathTime)
+        else:
+            astarStats[manHatScore] = [pathTime]
+        # astarStats.append((manHatScore,pathTime))
+    
+    astarEnd = time.time()
+    print "Astar: ", astarEnd - astarStart
+
+    dijkstraStats = {}
+    dijkStart = time.time()
+    for i in range(n):
+        g1, g2 = randomNet(board)
+        net = Net(g1, g2, 0)
+        astar = Dijkstra(board, net)
+
+        pathStart = time.time()
+        net.path = astar.createPath()
+        pathEnd = time.time()
+        pathTime = pathEnd - pathStart
+
+
+        coord1 = board.gates[g1].getCoordinates()
+        coord2 = board.gates[g2].getCoordinates()
+        manHatScore = abs(coord1[0] - coord2[0]) + abs(coord1[1] - coord2[1])
+
+        if manHatScore in dijkstraStats.keys():
+            dijkstraStats[manHatScore].append(pathTime)
+        else:
+            dijkstraStats[manHatScore] = [pathTime]
+
+    dijkEnd = time.time()
+    print "Dijkstra: ", dijkEnd - dijkStart
+
+    astarPlot = ([],[],[])
+    for i,l in astarStats.iteritems():
+        astarPlot[0].append(i)
+        astarPlot[1].append(np.mean(l))
+        astarPlot[2].append(np.std(l))
+    
+    dijkstraPlot = ([],[],[])
+    for i,l in dijkstraStats.iteritems():
+        dijkstraPlot[0].append(i)
+        dijkstraPlot[1].append(np.mean(l))
+        dijkstraPlot[2].append(np.std(l))
+
+    plt.errorbar(*astarPlot, linestyle='None', marker='^', color='b')
+    plt.errorbar(*dijkstraPlot, linestyle='None', marker='^', color='r')
+    # print zip(*astarStats)
+    # plt.scatter(*zip(*astarStats), color='b')
+    # plt.scatter(*zip(*dijkstraStats), color='r')
+    plt.show()
+
+
+algorithmBenchmark(10000)
