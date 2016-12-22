@@ -14,12 +14,11 @@ class AStar(object):
         bias (:obj:'str', optional): A flag indicating which distance bias to use.
     """
 
-    def __init__(self, board, net, bias='vertical', multiple=False):
+    def __init__(self, board, net, bias='vertical'):
         super(AStar, self).__init__()
         self.board = board
         self.net = net
         self.bias = bias
-        self.multiple = multiple
 
     def createPath(self):
         """Run the algorithm to create a path
@@ -140,24 +139,8 @@ class AStar(object):
 
     # Helper function to reconstruct the path
     def reconstructPath(self, cameFrom, currentNode):
-        if self.multiple:
-            paths = []
-            allPaths = self.returnMultiplePaths(cameFrom, [currentNode], paths)
-            return allPaths
-        else:
-            path = [currentNode]
-            while currentNode in cameFrom.keys():
-                currentNode = cameFrom[currentNode]
-                path.append(currentNode)
-            return list(reversed(path))
-
-    def returnMultiplePaths(self, cameFrom, path, paths):
-        lastNode = path[-1]
-        if lastNode in cameFrom.keys():
-            for nextNode in cameFrom[lastNode]:
-                new_path = path + [nextNode]
-                paths = self.returnMultiplePaths(cameFrom, new_path, paths)
-        else:
-            path = list(reversed(path))
-            paths += [path]
-        return paths
+        path = [currentNode]
+        while currentNode in cameFrom.keys():
+            currentNode = cameFrom[currentNode]
+            path.append(currentNode)
+        return list(reversed(path))
