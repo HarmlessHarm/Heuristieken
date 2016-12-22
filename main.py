@@ -13,7 +13,7 @@ if __name__ == '__main__':
     parser.add_argument('-n', '--netlist', type=int, choices=[0, 1, 2, 3, 4, 5, 6],
                         help="Specify which netlist to use (1-7), default is netlist 1")
     parser.add_argument('-a', '--algorithm', type=str,
-                        choices=['astar', 'dijkstra', 'simple'],
+                        choices=['astar', 'dijkstra'],
                         help="Specify which algorithm to use, default is astar")
     parser.add_argument('-v', '--visualization', action='store_true',
                         help="3d visualization, default is off")
