@@ -71,7 +71,6 @@ class Visualizer(object):
             if net.path != False:
                 for i, (x, y, z) in enumerate(net.path[:-1]):
                     (nx, ny, nz) = net.path[i+1]
-<<<<<<< HEAD
                     ax.plot(
                         [x, nx], [y, ny], [z, nz], color=color, alpha=0.8, linewidth=2.0)
 
@@ -119,42 +118,3 @@ def readCSV(filename):
 			xs.append(line['iteration'])
 			ys.append(line[' max_score'])
 	return xs, ys
-
-if __name__ == '__main__':
-	plotData()
-    # b = createBoard(1)
-    # alg = AStar(b)
-    # net = Net(0, 1, 0)
-    # path = alg.aStar(b.gates[0],b.gates[1])
-    # net.path = path
-    # b.nets[0] = net
-    # b.setNetPath(net)
-    # v = Visualizer(b)
-    # v.start()
-    # netlists = readNetlists()
-    # board = createBoard(30)
-    # failedCount = 0
-    # netlist = netlists[0]
-    # # shuffle(netlist)
-    # for i, (start, end) in enumerate(netlist):
-    #     net = Net(board.gates[start], board.gates[end], 1)
-    #     print "Planning the path", i, "from gate ", start, board.gates[start], " to gate ", end, board.gates[end]
-    #     alg = AStar(board)
-    #     plannedPath = alg.aStar(net.start_gate, net.end_gate)
-    #     if not plannedPath:
-    #         print 'Failed planning a path for net', i, '!'
-    #         failedCount += 1
-    #         continue
-
-    #     net.path = plannedPath
-    #     board.nets[i] = net
-    #     if not board.setNetPath(net):
-    #         print 'Path is planned over an occupied position!'
-    #         break
-    # print 'Failed planning paths for: ', failedCount, 'nets'
-    # v = Visualizer(board)
-    # v.start()
-=======
-                    ax.plot([x, nx], [y, ny], [z, nz], color=color, alpha=0.8,
-                            linewidth=2.0)
->>>>>>> a6fcaa575fcd4a257f82c83f24ac0684510c8936
